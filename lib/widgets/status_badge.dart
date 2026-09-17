@@ -31,9 +31,9 @@ class StatusBadge extends StatelessWidget {
       return AppColors.statusPendingBg;
     }
     if (status == 'Resolved') {
-      return AppColors.statusResolved.withOpacity(0.12);
+      return AppColors.statusResolved.withValues(alpha: 0.12);
     }
-    return AppColors.statusRejected.withOpacity(0.12);
+    return AppColors.statusRejected.withValues(alpha: 0.12);
   }
 
   @override

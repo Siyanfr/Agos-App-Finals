@@ -9,6 +9,7 @@ class TextInputField extends StatelessWidget {
   final String? Function(String?)? validator;
   final IconData? leadingIcon;
   final IconData? trailingIcon;
+  final VoidCallback? onTrailingIconTap;
   final bool multiline;
 
   const TextInputField({
@@ -20,6 +21,7 @@ class TextInputField extends StatelessWidget {
     this.validator,
     this.leadingIcon,
     this.trailingIcon,
+    this.onTrailingIconTap,
     this.multiline = false,
   });
 
@@ -47,7 +49,12 @@ class TextInputField extends StatelessWidget {
             filled: true,
             fillColor: AppColors.surface,
             prefixIcon: leadingIcon == null ? null : Icon(leadingIcon),
-            suffixIcon: trailingIcon == null ? null : Icon(trailingIcon),
+            suffixIcon: trailingIcon == null
+                ? null
+                : IconButton(
+                    icon: Icon(trailingIcon),
+                    onPressed: onTrailingIconTap,
+                  ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.medium),
               borderSide: BorderSide.none,

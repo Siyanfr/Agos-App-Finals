@@ -13,7 +13,7 @@ void main() {
   testWidgets('home screen shows its title and counts taps', (tester) async {
     // Build the app. Note we build MyApp directly, not the DevicePreview
     // wrapper, because a test does not need the phone frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const AgosApp());
 
     expect(find.text('It works'), findsOneWidget);
     expect(find.text('Taps: 0'), findsOneWidget);

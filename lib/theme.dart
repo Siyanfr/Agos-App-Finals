@@ -36,7 +36,6 @@ final appTheme = ThemeData(
     primary: AppColors.primary,
     onPrimary: AppColors.onPrimary,
     secondary: AppColors.secondary,
-    background: AppColors.background,
     surface: AppColors.surface,
     onSurface: AppColors.onSurface,
     error: AppColors.error,
