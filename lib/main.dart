@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'theme.dart';
-import 'screens/login_screen.dart';
+import 'screens/citizen/citizen_dashboard_screen.dart';
 
 void main() {
   runApp(const AgosApp());
@@ -15,7 +15,7 @@ class AgosApp extends StatelessWidget {
       title: 'AGOS',
       debugShowCheckedModeBanner: false,
       theme: appTheme,
-      home: const LoginScreen(),
+      home: const CitizenDashboardScreen(),
     );
   }
 }
