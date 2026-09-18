@@ -8,6 +8,7 @@ import '../../widgets/primary_button.dart';
 import '../../widgets/report_card.dart';
 import '../../widgets/stat_summary_card.dart';
 import '../../widgets/status_badge.dart';
+import 'submit_report_screen.dart';
 
 class CitizenDashboardScreen extends StatelessWidget {
   const CitizenDashboardScreen({super.key});
@@ -171,8 +172,11 @@ class CitizenDashboardScreen extends StatelessWidget {
               child: PrimaryButton(
                 label: '+ Submit New Report',
                 onPressed: () {
-                  // Wired to the real Submit Report screen once it exists.
-                  debugPrint('Navigate to Submit Report');
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const SubmitReportScreen(),
+                    ),
+                  );
                 },
               ),
             ),
