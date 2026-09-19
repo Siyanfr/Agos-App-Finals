@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:device_preview/device_preview.dart';
 import 'theme.dart';
-import 'screens/citizen/citizen_dashboard_screen.dart';
+import 'screens/authority/authority_dashboard_screen.dart';
 
 void main() {
-  runApp(const AgosApp());
+  runApp(
+    DevicePreview(
+      enabled: true,
+      builder: (context) => const AgosApp(),
+    ),
+  );
 }
 
 class AgosApp extends StatelessWidget {
@@ -14,8 +20,11 @@ class AgosApp extends StatelessWidget {
     return MaterialApp(
       title: 'AGOS',
       debugShowCheckedModeBanner: false,
+      useInheritedMediaQuery: true,
+      locale: DevicePreview.locale(context),
+      builder: DevicePreview.appBuilder,
       theme: appTheme,
-      home: const CitizenDashboardScreen(),
+      home: const AuthorityDashboardScreen(),
     );
   }
 }
