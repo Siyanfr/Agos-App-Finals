@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "742018649174",
+    "project_id": "agos-final-project",
+    "storage_bucket": "agos-final-project.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:742018649174:android:9c6b71bf58f8b4838ebff7",
+        "android_client_info": {
+          "package_name": "com.example.final_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArCpjwPoN8yjIDto9ftfbXTZnxOBUz2EI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
