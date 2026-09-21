@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../services/auth_service.dart';
 import '../widgets/primary_button.dart';
 import '../widgets/text_input_field.dart';
+import 'citizen/citizen_dashboard_screen.dart';
+import 'authority/authority_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,7 +16,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _authService = AuthService();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -22,11 +28,42 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
-    // This is a placeholder for now.
-    // Once Firebase is wired in, this will call
-    // FirebaseAuth.instance.signInWithEmailAndPassword(...)
-    debugPrint('Login tapped: ${_usernameController.text}');
+  Future<void> _handleLogin() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final appUser = await _authService.signIn(
+        _usernameController.text.trim(),
+        _passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      if (appUser.role == 'authority') {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const AuthorityDashboardScreen(),
+          ),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const CitizenDashboardScreen(),
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Invalid credentials. Please try again.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -39,7 +76,6 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo circle
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
@@ -98,6 +134,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     });
                   },
                 ),
+
+                if (_errorMessage != null) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    _errorMessage!,
+                    style: const TextStyle(color: AppColors.error, fontSize: 13),
+                  ),
+                ],
+
                 const SizedBox(height: AppSpacing.lg),
 
                 SizedBox(
@@ -105,6 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: PrimaryButton(
                     label: 'Login',
                     icon: Icons.arrow_forward,
+                    isLoading: _isLoading,
                     onPressed: _handleLogin,
                   ),
                 ),
