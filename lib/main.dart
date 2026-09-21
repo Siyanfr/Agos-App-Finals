@@ -9,6 +9,7 @@ import 'screens/citizen/citizen_dashboard_screen.dart';
 import 'screens/citizen/submit_report_screen.dart';
 import 'screens/authority/authority_dashboard_screen.dart';
 import 'screens/authority/report_action_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
