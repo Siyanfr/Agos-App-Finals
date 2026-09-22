@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/report_model.dart';
+import '../../services/auth_service.dart';
+import '../../services/firestore_service.dart';
 import '../../theme.dart';
 import '../../widgets/detail_modal.dart';
 import '../../widgets/detail_row.dart';
@@ -8,39 +11,43 @@ import '../../widgets/primary_button.dart';
 import '../../widgets/report_card.dart';
 import '../../widgets/stat_summary_card.dart';
 import '../../widgets/status_badge.dart';
+import '../login_screen.dart';
 import 'submit_report_screen.dart';
 
-class CitizenDashboardScreen extends StatelessWidget {
+class CitizenDashboardScreen extends StatefulWidget {
   const CitizenDashboardScreen({super.key});
 
-  // Placeholder data until Firestore is wired in.
-  List<Report> get _placeholderReports => [
-        Report(
-          id: 'RPT-2026-07-8921',
-          reporterId: 'citizen1',
-          description:
-              'Vehicle is illegally double-parked, obstructing the roadway and impeding the normal flow of traffic.',
-          locationName: 'Angeles City, Pampanga',
-          timestamp: DateTime(2026, 7, 20, 9, 45),
-          status: 'Pending',
-        ),
-        Report(
-          id: 'RPT-2026-07-8922',
-          reporterId: 'citizen1',
-          description: 'Vehicle blocking fire hydrant access.',
-          locationName: 'San Fernando, Pampanga',
-          timestamp: DateTime(2026, 7, 20, 10, 0),
-          status: 'Pending',
-        ),
-        Report(
-          id: 'RPT-2026-07-8923',
-          reporterId: 'citizen1',
-          description: 'Vehicle parked directly on the pedestrian crosswalk.',
-          locationName: 'Mabalacat, Pampanga',
-          timestamp: DateTime(2026, 7, 15, 14, 0),
-          status: 'Resolved',
-        ),
-      ];
+  @override
+  State<CitizenDashboardScreen> createState() =>
+      _CitizenDashboardScreenState();
+}
+
+class _CitizenDashboardScreenState extends State<CitizenDashboardScreen> {
+  final _authService = AuthService();
+  final _firestoreService = FirestoreService();
+  String _fullName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    final appUser = await _authService.getCurrentAppUser();
+    if (mounted && appUser != null) {
+      setState(() => _fullName = appUser.fullName);
+    }
+  }
+
+  Future<void> _logout() async {
+    await _authService.signOut();
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (route) => false,
+    );
+  }
 
   void _showReportDetails(BuildContext context, Report report) {
     showDialog(
@@ -57,13 +64,20 @@ class CitizenDashboardScreen extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(AppRadius.medium),
-                  child: Container(
-                    height: 160,
-                    width: double.infinity,
-                    color: AppColors.surfaceTint,
-                    child: const Icon(Icons.directions_car,
-                        size: 48, color: AppColors.primary),
-                  ),
+                  child: report.photoUrl == null || report.photoUrl!.isEmpty
+                      ? Container(
+                          height: 160,
+                          width: double.infinity,
+                          color: AppColors.surfaceTint,
+                          child: const Icon(Icons.directions_car,
+                              size: 48, color: AppColors.primary),
+                        )
+                      : Image.network(
+                          report.photoUrl!,
+                          height: 160,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                 ),
                 Positioned(
                   top: AppSpacing.sm,
@@ -105,6 +119,12 @@ class CitizenDashboardScreen extends StatelessWidget {
               label: 'ID',
               value: report.id,
             ),
+            if (report.notes != null && report.notes!.isNotEmpty)
+              DetailRow(
+                icon: Icons.notes,
+                label: 'Authority Notes',
+                value: report.notes!,
+              ),
           ],
         ),
         actionButton: SizedBox(
@@ -120,8 +140,7 @@ class CitizenDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reports = _placeholderReports;
-    final pendingCount = reports.where((r) => r.status == 'Pending').length;
+    final uid = FirebaseAuth.instance.currentUser!.uid;
 
     return Scaffold(
       appBar: NavigationHeader(
@@ -130,85 +149,102 @@ class CitizenDashboardScreen extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: AppSpacing.md),
-            child: CircleAvatar(
-              backgroundColor: AppColors.surfaceTint,
-              child: const Icon(Icons.person_outline, color: AppColors.primary),
+            child: GestureDetector(
+              onTap: _logout,
+              child: const CircleAvatar(
+                backgroundColor: AppColors.surfaceTint,
+                child: Icon(Icons.person_outline, color: AppColors.primary),
+              ),
             ),
           ),
         ],
       ),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          children: [
-            const Text(
-              'Good morning, Cean',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const Text(
-              "Here's a quick overview of your reports.",
-              style: TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Row(
+        child: StreamBuilder<List<Report>>(
+          stream: _firestoreService.citizenReports(uid),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+
+            final reports = snapshot.data ?? [];
+            final pendingCount =
+                reports.where((r) => r.status == 'Pending').length;
+
+            return ListView(
+              padding: const EdgeInsets.all(AppSpacing.lg),
               children: [
-                StatSummaryCard(
-                  label: 'Total Reports',
-                  count: reports.length,
-                  icon: Icons.description_outlined,
+                Text(
+                  'Good morning, ${_fullName.isEmpty ? '...' : _fullName}',
+                  style: const TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                StatSummaryCard(
-                  label: 'Pending',
-                  count: pendingCount,
-                  icon: Icons.pending_actions,
-                  highlighted: true,
+                const Text(
+                  "Here's a quick overview of your reports.",
+                  style: TextStyle(color: Colors.grey),
                 ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.md),
-            SizedBox(
-              width: double.infinity,
-              child: PrimaryButton(
-                label: '+ Submit New Report',
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const SubmitReportScreen(),
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  children: [
+                    StatSummaryCard(
+                      label: 'Total Reports',
+                      count: reports.length,
+                      icon: Icons.description_outlined,
                     ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+                    const SizedBox(width: AppSpacing.sm),
+                    StatSummaryCard(
+                      label: 'Pending',
+                      count: pendingCount,
+                      icon: Icons.pending_actions,
+                      highlighted: true,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                SizedBox(
+                  width: double.infinity,
+                  child: PrimaryButton(
+                    label: '+ Submit New Report',
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const SubmitReportScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
                 const Text(
                   'Your Reports',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
-                GestureDetector(
-                  onTap: () => debugPrint('See all tapped'),
-                  child: const Text(
-                    'See All',
-                    style: TextStyle(color: AppColors.primary),
+                const SizedBox(height: AppSpacing.sm),
+                if (reports.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                    child: Text(
+                      'No reports yet. Submit your first one above.',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                ...reports.map(
+                  (report) => ReportCard(
+                    reportTitle: report.description.split(',').first,
+                    status: report.status,
+                    date:
+                        '${report.timestamp.month}/${report.timestamp.day}/${report.timestamp.year}',
+                    location: report.locationName,
+                    imageUrl: report.photoUrl,
+                    onTap: () => _showReportDetails(context, report),
                   ),
                 ),
               ],
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            ...reports.map(
-              (report) => ReportCard(
-                reportTitle: report.description.split(',').first,
-                status: report.status,
-                date:
-                    '${report.timestamp.month}/${report.timestamp.day}/${report.timestamp.year}',
-                location: report.locationName,
-                onTap: () => _showReportDetails(context, report),
-              ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );

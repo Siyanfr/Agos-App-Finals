@@ -7,7 +7,8 @@ class Report {
   final double? longitude;
   final String locationName;
   final DateTime timestamp;
-  final String status; // 'Pending', 'Resolved', or 'Rejected'
+  final String status;
+  final String? notes;
 
   Report({
     required this.id,
@@ -19,5 +20,6 @@ class Report {
     required this.locationName,
     required this.timestamp,
     required this.status,
+    this.notes,
   });
 }

@@ -6,6 +6,10 @@ import '../../widgets/image_upload.dart';
 import '../../widgets/navigation_header.dart';
 import '../../widgets/primary_button.dart';
 import '../../widgets/text_input_field.dart';
+import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../services/firestore_service.dart';
+import '../../services/storage_service.dart';
 
 class SubmitReportScreen extends StatefulWidget {
   const SubmitReportScreen({super.key});
@@ -82,12 +86,51 @@ class _SubmitReportScreenState extends State<SubmitReportScreen> {
     );
   }
 
-  void _submitReport() {
+  Future<void> _submitReport() async {
     if (_imagePath == null || _locationController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please add a photo and a location.')),
       );
       return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      final photoUrl = await StorageService()
+          .uploadReportPhoto(File(_imagePath!));
+
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+
+      double? lat;
+      double? lng;
+      final locationText = _locationController.text;
+      if (locationText.contains(',')) {
+        final parts = locationText.split(',');
+        lat = double.tryParse(parts[0].trim());
+        lng = double.tryParse(parts[1].trim());
+      }
+
+      await FirestoreService().createReport(
+        reporterId: uid,
+        photoUrl: photoUrl,
+        description: _descriptionController.text,
+        latitude: lat,
+        longitude: lng,
+        locationName: locationText,
+      );
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Submission failed: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
     }
 
     setState(() => _isSubmitting = true);

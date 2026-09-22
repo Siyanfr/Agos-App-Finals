@@ -5,6 +5,7 @@ import '../../widgets/detail_row.dart';
 import '../../widgets/navigation_header.dart';
 import '../../widgets/photo_evidence_viewer.dart';
 import '../../widgets/primary_button.dart';
+import '../../services/firestore_service.dart';
 
 class ReportActionScreen extends StatefulWidget {
   final Report report;
@@ -32,12 +33,24 @@ class _ReportActionScreenState extends State<ReportActionScreen> {
     super.dispose();
   }
 
-  void _updateStatus() {
+  Future<void> _updateStatus() async {
     setState(() => _isSaving = true);
-    // Firestore .update({'status': _selectedStatus, ...}) goes here once wired in.
-    debugPrint(
-        'Updating ${widget.report.id} to $_selectedStatus with notes: ${_notesController.text}');
-    Navigator.of(context).pop();
+
+    try {
+      await FirestoreService().updateStatus(
+        widget.report.id,
+        _selectedStatus,
+        notes: _notesController.text,
+      );
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Update failed: $e')),
+      );
+      setState(() => _isSaving = false);
+    }
   }
 
   @override
@@ -54,8 +67,7 @@ class _ReportActionScreenState extends State<ReportActionScreen> {
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
             PhotoEvidenceViewer(
-              images: const [],
-              mapThumbnailUrl: 'placeholder',
+              images: report.photoUrl != null ? [report.photoUrl!] : [],
               status: report.status,
             ),
             const SizedBox(height: AppSpacing.md),

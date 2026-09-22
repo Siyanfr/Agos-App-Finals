@@ -42,21 +42,6 @@ class PhotoEvidenceViewer extends StatelessWidget {
             ),
           ],
         ),
-        if (mapThumbnailUrl != null) ...[
-          const SizedBox(height: AppSpacing.sm),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.medium),
-            child: Container(
-              width: double.infinity,
-              height: 140,
-              color: AppColors.surfaceTint,
-              child: const Center(
-                child: Icon(Icons.map_outlined,
-                    size: 40, color: AppColors.primary),
-              ),
-            ),
-          ),
-        ],
       ],
     );
   }

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../models/report_model.dart';
+import '../../services/auth_service.dart';
+import '../../services/firestore_service.dart';
 import '../../theme.dart';
 import '../../widgets/navigation_header.dart';
 import '../../widgets/report_card.dart';
 import '../../widgets/stat_summary_card.dart';
+import '../login_screen.dart';
 import 'report_action_screen.dart';
 
 class AuthorityDashboardScreen extends StatefulWidget {
@@ -15,48 +18,17 @@ class AuthorityDashboardScreen extends StatefulWidget {
 }
 
 class _AuthorityDashboardScreenState extends State<AuthorityDashboardScreen> {
+  final _authService = AuthService();
+  final _firestoreService = FirestoreService();
   String _selectedFilter = 'All';
 
-  // Placeholder data until Firestore is wired in.
-  List<Report> get _placeholderReports => [
-        Report(
-          id: 'RPT-2026-07-8921',
-          reporterId: 'citizen1',
-          description: 'Vehicle illegally parked beside a fire hydrant.',
-          locationName: 'Angeles City, Pampanga',
-          timestamp: DateTime(2026, 7, 20, 9, 45),
-          status: 'Pending',
-        ),
-        Report(
-          id: 'RPT-2026-07-8922',
-          reporterId: 'citizen1',
-          description: 'Double parking blocking a full lane.',
-          locationName: 'San Fernando, Pampanga',
-          timestamp: DateTime(2026, 7, 20, 10, 0),
-          status: 'Pending',
-        ),
-        Report(
-          id: 'RPT-2026-07-8923',
-          reporterId: 'citizen2',
-          description: 'Vehicle parked on the pedestrian crosswalk.',
-          locationName: 'Mabalacat, Pampanga',
-          timestamp: DateTime(2026, 7, 15, 14, 0),
-          status: 'Resolved',
-        ),
-        Report(
-          id: 'RPT-2026-07-8924',
-          reporterId: 'citizen2',
-          description: 'Vehicle left on the sidewalk overnight.',
-          locationName: 'Balibago, Angeles City',
-          timestamp: DateTime(2026, 7, 8, 8, 0),
-          status: 'Rejected',
-        ),
-      ];
-
-  List<Report> get _filteredReports {
-    final all = _placeholderReports;
-    if (_selectedFilter == 'All') return all;
-    return all.where((r) => r.status == _selectedFilter).toList();
+  Future<void> _logout() async {
+    await _authService.signOut();
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (route) => false,
+    );
   }
 
   Widget _filterChip(String label) {
@@ -81,10 +53,6 @@ class _AuthorityDashboardScreenState extends State<AuthorityDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final reports = _placeholderReports;
-    final pendingCount = reports.where((r) => r.status == 'Pending').length;
-    final resolvedCount = reports.where((r) => r.status == 'Resolved').length;
-
     return Scaffold(
       appBar: NavigationHeader(
         title: 'AGOS AUTHORITY',
@@ -92,78 +60,118 @@ class _AuthorityDashboardScreenState extends State<AuthorityDashboardScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: AppSpacing.md),
-            child: CircleAvatar(
-              backgroundColor: AppColors.surfaceTint,
-              child: const Icon(Icons.person_outline, color: AppColors.primary),
+            child: GestureDetector(
+              onTap: _logout,
+              child: const CircleAvatar(
+                backgroundColor: AppColors.surfaceTint,
+                child: Icon(Icons.person_outline, color: AppColors.primary),
+              ),
             ),
           ),
         ],
       ),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          children: [
-            Row(
-              children: [
-                StatSummaryCard(
-                  label: 'Total',
-                  count: reports.length,
-                  icon: Icons.description_outlined,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                StatSummaryCard(
-                  label: 'Pending',
-                  count: pendingCount,
-                  icon: Icons.hourglass_empty,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                StatSummaryCard(
-                  label: 'Resolved',
-                  count: resolvedCount,
-                  icon: Icons.check_circle_outline,
-                  highlighted: true,
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            const Text(
-              'Incoming City Reports',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const Text(
-              'Angeles City Jurisdiction',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _filterChip('All'),
-                  _filterChip('Pending'),
-                  _filterChip('Resolved'),
-                  _filterChip('Rejected'),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            ..._filteredReports.map(
-              (report) => ReportCard(
-                reportTitle: report.description.split(',').first,
-                status: report.status,
-                date:
-                    '${report.timestamp.month}/${report.timestamp.day}/${report.timestamp.year}',
-                location: report.locationName,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => ReportActionScreen(report: report),
+        child: StreamBuilder<List<Report>>(
+          stream: _firestoreService.allReports(statusFilter: _selectedFilter),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+
+            final reports = snapshot.data ?? [];
+            // Pending/Resolved counts should reflect ALL reports, not just
+            // the current filter, so fetch them unfiltered for the stat cards.
+            return StreamBuilder<List<Report>>(
+              stream: _firestoreService.allReports(),
+              builder: (context, allSnapshot) {
+                final allReports = allSnapshot.data ?? [];
+                final pendingCount =
+                    allReports.where((r) => r.status == 'Pending').length;
+                final resolvedCount =
+                    allReports.where((r) => r.status == 'Resolved').length;
+
+                return ListView(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  children: [
+                    Row(
+                      children: [
+                        StatSummaryCard(
+                          label: 'Total',
+                          count: allReports.length,
+                          icon: Icons.description_outlined,
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        StatSummaryCard(
+                          label: 'Pending',
+                          count: pendingCount,
+                          icon: Icons.hourglass_empty,
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        StatSummaryCard(
+                          label: 'Resolved',
+                          count: resolvedCount,
+                          icon: Icons.check_circle_outline,
+                          highlighted: true,
+                        ),
+                      ],
                     ),
-                  );
-                },
-              ),
-            ),
-          ],
+                    const SizedBox(height: AppSpacing.lg),
+                    const Text(
+                      'Incoming City Reports',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    const Text(
+                      'Angeles City Jurisdiction',
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _filterChip('All'),
+                          _filterChip('Pending'),
+                          _filterChip('Resolved'),
+                          _filterChip('Rejected'),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    if (reports.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                        child: Text(
+                          'No reports match this filter.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    ...reports.map(
+                      (report) => ReportCard(
+                        reportTitle: report.description.split(',').first,
+                        status: report.status,
+                        date:
+                            '${report.timestamp.month}/${report.timestamp.day}/${report.timestamp.year}',
+                        location: report.locationName,
+                        imageUrl: report.photoUrl,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ReportActionScreen(report: report),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
         ),
       ),
     );
