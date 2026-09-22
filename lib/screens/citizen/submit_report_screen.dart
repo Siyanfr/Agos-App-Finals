@@ -31,12 +31,19 @@ class _SubmitReportScreenState extends State<SubmitReportScreen> {
     _descriptionController.dispose();
     super.dispose();
   }
-
+  bool _isPickingImage = false;
   Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      setState(() => _imagePath = picked.path);
+    if (_isPickingImage) return;
+    _isPickingImage = true;
+
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.gallery);
+      if (picked != null) {
+        setState(() => _imagePath = picked.path);
+      }
+    } finally {
+      _isPickingImage = false;
     }
   }
 
