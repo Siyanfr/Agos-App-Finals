@@ -139,13 +139,6 @@ class _SubmitReportScreenState extends State<SubmitReportScreen> {
         setState(() => _isSubmitting = false);
       }
     }
-
-    setState(() => _isSubmitting = true);
-    // Firebase Storage upload + Firestore write goes here once wired in.
-    debugPrint(
-        'Submitting report: image=$_imagePath, location=${_locationController.text}, description=${_descriptionController.text}');
-
-    Navigator.of(context).pop();
   }
 
   @override
