@@ -23,13 +23,20 @@ class PhotoEvidenceViewer extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(AppRadius.medium),
-              child: Container(
-                width: double.infinity,
-                height: 220,
-                color: AppColors.surfaceTint,
-                child: const Icon(Icons.directions_car,
-                    size: 56, color: AppColors.primary),
-              ),
+              child: images.isEmpty
+                  ? Container(
+                      width: double.infinity,
+                      height: 220,
+                      color: AppColors.surfaceTint,
+                      child: const Icon(Icons.directions_car,
+                          size: 56, color: AppColors.primary),
+                    )
+                  : Image.network(
+                      images.first,
+                      width: double.infinity,
+                      height: 220,
+                      fit: BoxFit.cover,
+                    ),
             ),
             Positioned(
               top: AppSpacing.sm,

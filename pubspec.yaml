@@ -18,7 +18,6 @@ dependencies:
   firebase_core: ^3.8.0
   firebase_auth: ^5.3.3
   cloud_firestore: ^5.5.0
-  firebase_storage: ^12.3.6
   http: ^1.2.2
   flutter_dotenv: ^5.2.1
   # Lets you preview the app inside a phone frame while you develop in a
