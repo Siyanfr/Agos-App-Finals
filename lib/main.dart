@@ -3,12 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:device_preview/device_preview.dart';
 import 'firebase_options.dart';
 import 'theme.dart';
-import 'models/report_model.dart';
 import 'screens/login_screen.dart';
-import 'screens/citizen/citizen_dashboard_screen.dart';
-import 'screens/citizen/submit_report_screen.dart';
-import 'screens/authority/authority_dashboard_screen.dart';
-import 'screens/authority/report_action_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
