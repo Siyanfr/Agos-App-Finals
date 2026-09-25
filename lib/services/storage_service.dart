@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class StorageService {
-  Future<String> uploadReportPhoto(File imageFile) async {
+  Future<String> uploadReportPhoto(Uint8List imageBytes) async {
     final cloudName = dotenv.env['CLOUDINARY_CLOUD_NAME'];
     final uploadPreset = dotenv.env['CLOUDINARY_UPLOAD_PRESET'];
 
@@ -18,7 +18,11 @@ class StorageService {
 
     final request = http.MultipartRequest('POST', url)
       ..fields['upload_preset'] = uploadPreset
-      ..files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+      ..files.add(http.MultipartFile.fromBytes(
+        'file',
+        imageBytes,
+        filename: 'report_photo.jpg',
+      ));
 
     final response = await request.send();
     final responseBody = await response.stream.bytesToString();

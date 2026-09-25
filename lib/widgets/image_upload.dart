@@ -1,9 +1,10 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../theme.dart';
 
 class ImageUploadComponent extends StatelessWidget {
-  final String? image; // local file path
+  final String? image; // file path (mobile) or blob URL (web)
   final VoidCallback onUpload;
   final VoidCallback onRemove;
 
@@ -21,12 +22,19 @@ class ImageUploadComponent extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(AppRadius.medium),
-            child: Image.file(
-              File(image!),
-              width: double.infinity,
-              height: 180,
-              fit: BoxFit.cover,
-            ),
+            child: kIsWeb
+                ? Image.network(
+                    image!,
+                    width: double.infinity,
+                    height: 180,
+                    fit: BoxFit.cover,
+                  )
+                : Image.file(
+                    File(image!),
+                    width: double.infinity,
+                    height: 180,
+                    fit: BoxFit.cover,
+                  ),
           ),
           Positioned(
             top: AppSpacing.sm,

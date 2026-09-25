@@ -6,10 +6,10 @@ import '../../widgets/image_upload.dart';
 import '../../widgets/navigation_header.dart';
 import '../../widgets/primary_button.dart';
 import '../../widgets/text_input_field.dart';
-import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/firestore_service.dart';
 import '../../services/storage_service.dart';
+import 'dart:typed_data';
 
 class SubmitReportScreen extends StatefulWidget {
   const SubmitReportScreen({super.key});
@@ -22,8 +22,10 @@ class _SubmitReportScreenState extends State<SubmitReportScreen> {
   final _locationController = TextEditingController();
   final _descriptionController = TextEditingController();
   String? _imagePath;
+  Uint8List? _imageBytes;
   bool _isDetectingLocation = false;
   bool _isSubmitting = false;
+  bool _isPickingImage = false;
 
   @override
   void dispose() {
@@ -31,7 +33,7 @@ class _SubmitReportScreenState extends State<SubmitReportScreen> {
     _descriptionController.dispose();
     super.dispose();
   }
-  bool _isPickingImage = false;
+
   Future<void> _pickImage() async {
     if (_isPickingImage) return;
     _isPickingImage = true;
@@ -40,7 +42,11 @@ class _SubmitReportScreenState extends State<SubmitReportScreen> {
       final picker = ImagePicker();
       final picked = await picker.pickImage(source: ImageSource.gallery);
       if (picked != null) {
-        setState(() => _imagePath = picked.path);
+        final bytes = await picked.readAsBytes();
+        setState(() {
+          _imagePath = picked.path;
+          _imageBytes = bytes;
+        });
       }
     } finally {
       _isPickingImage = false;
@@ -48,7 +54,10 @@ class _SubmitReportScreenState extends State<SubmitReportScreen> {
   }
 
   void _removeImage() {
-    setState(() => _imagePath = null);
+    setState(() {
+      _imagePath = null;
+      _imageBytes = null;
+    });
   }
 
   Future<void> _autoDetectLocation() async {
@@ -94,7 +103,7 @@ class _SubmitReportScreenState extends State<SubmitReportScreen> {
   }
 
   Future<void> _submitReport() async {
-    if (_imagePath == null || _locationController.text.isEmpty) {
+    if (_imageBytes == null || _locationController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please add a photo and a location.')),
       );
@@ -104,8 +113,7 @@ class _SubmitReportScreenState extends State<SubmitReportScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      final photoUrl = await StorageService()
-          .uploadReportPhoto(File(_imagePath!));
+      final photoUrl = await StorageService().uploadReportPhoto(_imageBytes!);
 
       final uid = FirebaseAuth.instance.currentUser!.uid;
 
@@ -183,7 +191,8 @@ class _SubmitReportScreenState extends State<SubmitReportScreen> {
               controller: _locationController,
               leadingIcon: Icons.location_on_outlined,
               trailingIcon: _isDetectingLocation ? null : Icons.gps_fixed,
-              onTrailingIconTap: _isDetectingLocation ? null : _autoDetectLocation,
+              onTrailingIconTap:
+                  _isDetectingLocation ? null : _autoDetectLocation,
             ),
             const SizedBox(height: AppSpacing.md),
             const Text(
