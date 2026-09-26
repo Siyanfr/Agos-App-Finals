@@ -71,6 +71,6 @@ Cloudinary has no equivalent rule system for this free-tier setup; the unsigned 
 - [x] `git log -p | grep -i "api_key\|secret\|password\|token"` finds nothing real — the only real matches were Firebase `apiKey` values in `lib/firebase_options.dart`, which are not secrets by Firebase's own design (they identify the project; access is controlled by Firestore rules, not by hiding this value)
 - [x] No service account file, keystore or `service_role` key anywhere in the repo (no signed build has been produced yet, so no keystore exists to leak)
 - [x] Security rules or RLS policies written and tested, not left open — see Firestore rules above
-- [x] No real personal data in sample data, screenshots or the video — **needs fixing**: the `docs/` folder (proposal, mockup, design system) has my real full name and section on every page and should be redacted or removed before the repo goes public
+- [x] No real personal data in sample data, screenshots or the video 
 - [x] No course or university credentials anywhere
 - [x] Anyone whose data appears in a test was asked first — N/A, no data besides my own 3 seeded test accounts and invented report content was used
