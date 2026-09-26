@@ -25,17 +25,26 @@ To get the project running from nothing:
    ```
    flutter pub get
    ```
-3. Firebase configuration:
-   - This project uses Firebase (Authentication, Cloud Firestore, and Firebase
-     Storage). Firebase is connected via the FlutterFire CLI, which generates
-     `lib/firebase_options.dart` for you — this file is **not** committed with
-     real production secrets checked in as plain text; if you're setting up
-     your own Firebase project, run `flutterfire configure` after cloning.
-   - Copy `.env.example` to `.env` and fill in any values it asks for. Never
-     commit your real `.env` file — it's already listed in `.gitignore`.
-
-> Configuration is still being wired in as of this writing — see "Known
-> issues and next steps" below.
+3. Firebase configuration (Authentication + Cloud Firestore):
+   - This project uses Firebase Authentication and Cloud Firestore. Firebase
+     is connected via the FlutterFire CLI, which generates
+     `lib/firebase_options.dart` — if you're setting up your own Firebase
+     project, run `flutterfire configure` after cloning.
+   - You'll need Email/Password sign-in enabled in Firebase Authentication,
+     plus a `users` collection (with `email`, `fullName`, `role` fields, doc
+     ID matching each account's UID) and a `reports` collection in Firestore.
+     See `docs/06-security-and-privacy.md` for the published security rules.
+4. Photo storage (Cloudinary):
+   - Report photos are uploaded to Cloudinary, not Firebase Storage (see
+     "Known issues and next steps" for why).
+   - Copy `.env.example` to `.env` and fill in your own values:
+     ```
+     CLOUDINARY_CLOUD_NAME=your_cloud_name_here
+     CLOUDINARY_UPLOAD_PRESET=your_upload_preset_here
+     ```
+   - Your Cloudinary upload preset must be set to **Unsigned** signing mode.
+   - Never commit your real `.env` file — it's already listed in
+     `.gitignore`.
 
 ## 3. How to run it
 
@@ -43,39 +52,59 @@ To get the project running from nothing:
 flutter run -d chrome
 ```
 
-(or select an Android/iOS device/emulator instead of `chrome` if you have one
-set up). On first successful run, you should see the AGOS UI load with the
+(or select an Android/iOS device/emulator instead of `chrome`). On first
+successful run, you should see the AGOS login screen with the
 `device_preview` phone-frame wrapper active, letting you switch between
 device sizes from the toolbar at the top of the window.
 
+To actually see the app's data, log in with one of the 3 pre-seeded demo
+accounts (no self-registration exists by design):
+
+| Role | Email |
+| --- | --- |
+| Citizen | citizen1@agos.app |
+| Citizen | citizen2@agos.app |
+| Authority | authority1@agos.app |
+
+(Ask the project owner for the shared demo password, or set your own if
+you're seeding a fresh Firebase project — see `docs/06-security-and-privacy.md`.)
+
 ## 4. Features and usage
 
-AGOS has two roles, routed from a single login screen, and 5 screens total:
+AGOS has two roles, routed from a single login screen based on the signed-in
+account's role, and 5 screens total, all backed by live Firestore data:
 
-1. **Login Screen** — enter credentials for one of the pre-seeded demo
-   accounts (2 citizen accounts, 1 authority account — no self-registration).
-2. **Citizen Home Dashboard** — shows total/pending report counts and a list
-   of the citizen's own submitted reports. Tapping a report card opens a
-   modal with the full photo, description, location, timestamp, and status.
-   A "+ Submit New Report" button opens the Submit Report screen.
-3. **Submit Report** — take/choose a photo, auto-detect GPS location (or
-   type it manually), add a description, and submit.
-4. **Authority Review Dashboard** — shows city-wide report totals and a
+1. **Login Screen** — sign in with a seeded account; routes to the Citizen or
+   Authority dashboard automatically based on role.
+2. **Citizen Home Dashboard** — live total/pending counts and a list of the
+   signed-in citizen's own submitted reports (via a Firestore `StreamBuilder`,
+   so it updates in real time). Tapping a report card opens a modal with the
+   full photo, description, location, timestamp, status, and any authority
+   notes. A "+ Submit New Report" button opens the Submit Report screen.
+3. **Submit Report** — take/choose a photo, auto-detect GPS location (or type
+   it manually), add a description, and submit. The photo uploads to
+   Cloudinary and the report is written to Firestore with status `Pending`.
+4. **Authority Review Dashboard** — live city-wide report totals and a
    filterable (All / Pending / Resolved / Rejected) list of every submitted
    report. Tapping a report opens the Report Action screen.
 5. **Authority Report Action & Resolution** — full photo evidence, report
-   details, a status selector, a notes field, and an "Update & Save Status"
-   button.
+   details, a status selector (Pending/Resolved/Rejected), a notes field, and
+   an "Update & Save Status" button that writes back to Firestore — changes
+   here appear live on the citizen's dashboard without any refresh needed.
 
 ## 5. Project structure
 
 ```
 lib/
-  main.dart              # App entry point, Firebase init, device_preview wrapper
+  main.dart              # App entry point, dotenv + Firebase init, device_preview wrapper
   theme.dart             # AppColors, AppSpacing, AppRadius tokens + ThemeData
   firebase_options.dart  # Generated by FlutterFire CLI
   models/
     report_model.dart    # Report data class
+  services/
+    auth_service.dart       # Firebase Auth sign-in/out, fetches the user's role from Firestore
+    firestore_service.dart  # Report reads/writes/status updates
+    storage_service.dart    # Cloudinary photo upload
   screens/
     login_screen.dart
     citizen/
@@ -111,38 +140,35 @@ lib/
 - Submit Report:
 <img width="456" height="1041" alt="image" src="https://github.com/user-attachments/assets/53db65c6-3393-443c-b8b4-af0e86f6a328" />
 
-- Authority Review Dashboard: 
+- Authority Review Dashboard:
 <img width="390" height="895" alt="image" src="https://github.com/user-attachments/assets/99fe19e9-d2ff-43b0-9c7f-9f8b9280b99f" />
 
 - Authority Report Action & Resolution:
 <img width="456" height="1041" alt="image" src="https://github.com/user-attachments/assets/d63d2fc3-0c97-4030-aacc-513d5a7af502" />
 
-
 ## 7. Known issues and next steps
 
 **Known issues:**
-- All 5 screens currently render with hardcoded placeholder data, not live
-  Firebase data. Updating a report's status on the Authority Report Action
-  screen does **not** yet reflect on the Citizen Dashboard, since each screen
-  currently holds its own local list with no shared data source.
-- `main.dart` currently opens directly into a specific screen for testing
-  purposes rather than routing through Login based on auth state.
-- Camera/location permission entries for Android (`AndroidManifest.xml`) and
-  iOS (`Info.plist`) have not been added yet — required before testing
-  `image_picker`/`geolocator` on a real device or emulator (works via browser
-  prompts when running with `flutter run -d chrome`).
-- Firebase project has been created and connected to the app (via
-  `flutterfire configure`), but Authentication, Firestore, and Storage
-  services themselves have not been enabled/wired into the app's logic yet.
+- The Firestore `status` field on a report is not restricted to an enum at
+  the rules level — only authority accounts can write to it at all, but a
+  malformed request could in theory write a value other than `Pending`,
+  `Resolved`, or `Rejected`. The app's own UI never generates one.
+- Report photos are hosted on Cloudinary using an **unsigned** upload preset,
+  which is Cloudinary's standard client-side upload method but means anyone
+  who extracted the cloud name and preset from the app could technically
+  upload arbitrary images through it. Acceptable for a class project; see
+  `docs/06-security-and-privacy.md` for the full reasoning.
+- The Firebase API key is not restricted in the Google Cloud console
+  (deliberate — access is enforced by Firestore security rules instead; see
+  `docs/SECURITY-CHECKLIST.md`, row 16).
 
 **Next steps:**
-- Enable Firebase Authentication (Email/Password) and create the 3 seeded
-  demo accounts (2 citizen, 1 authority).
-- Set up Cloud Firestore `users` and `reports` collections with security
-  rules enforcing per-role read/write access.
-- Set up Firebase Storage for report photo uploads.
-- Replace all placeholder data with live `StreamBuilder<QuerySnapshot>` reads
-  so status updates sync in real time across devices.
-- Add the missing Android/iOS permission entries.
-- Implement real login-based routing between the Citizen and Authority
-  dashboards.
+- Optionally restrict the Firebase API key in the Google Cloud console.
+- Add a Firestore rule constraining `status` to the 3 valid values.
+- Finish `AI-USAGE.md` per the finals-badge requirements.
+
+## AI usage
+
+Parts of this project's Flutter/Firebase implementation, debugging, and
+documentation were developed with the assistance of Claude (Anthropic). See
+`AI-USAGE.md` for details.
