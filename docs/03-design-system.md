@@ -1,9 +1,6 @@
 # Design system
 
-> Final Project Design System V2 — submitted September 18, 2026 (CS-302).
-
-![Design system palette and type scale, page 1](assets/design-system-palette.png)
-[Full design system (PDF)](assets/design-system.pdf)
+> Final Project Design System V2 — submitted September 18, 2026.
 
 ## Palette
 
