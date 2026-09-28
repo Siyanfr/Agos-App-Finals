@@ -74,6 +74,19 @@ jobs:
       - if: steps.check.outputs.ready == 'true'
         run: flutter pub get
 
+      # AGOS reads its Cloudinary values from a .env file (flutter_dotenv), and
+      # pubspec.yaml lists .env as an asset. .env is gitignored, so the runner
+      # does not have it. This step builds it from repository secrets. It writes
+      # to a file and never prints the values to the log.
+      - name: Create .env from repository secrets
+        if: steps.check.outputs.ready == 'true'
+        env:
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_UPLOAD_PRESET: ${{ secrets.CLOUDINARY_UPLOAD_PRESET }}
+        run: |
+          printf 'CLOUDINARY_CLOUD_NAME=%s\nCLOUDINARY_UPLOAD_PRESET=%s\n' \
+            "$CLOUDINARY_CLOUD_NAME" "$CLOUDINARY_UPLOAD_PRESET" > .env
+
       # Neither of these blocks your deploy: a failing test should not take your
       # live link down. They are here so you find out before your grader does.
       - if: steps.check.outputs.ready == 'true'
