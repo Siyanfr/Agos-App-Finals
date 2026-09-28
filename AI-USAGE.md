@@ -78,4 +78,20 @@ graded as the finals badge, and it is worth 100 points.
 
 ## 3. Who wrote what
 
-Left open for now. As of this entry, I don't have a piece of this project that's genuinely code I wrote independently, without asking Claude to do it. Filling this section with something that presents AI-written code as my own would defeat the point of this file, so I'm leaving it incomplete rather than write something false. I plan to come back and complete this once I've written and committed something real on my own.
+### Written by me
+
+## 1. Workflow Error 
+- **File:** .github\workflows\deploy-web.yml
+- **Commit:** [https://github.com/Siyanfr/Agos-App-Finals/commit/7ab12fc2f202d53e4996ab674f6cc4f6e51a1b5c](https://github.com/Siyanfr/Agos-App-Finals/commit/7ab12fc2f202d53e4996ab674f6cc4f6e51a1b5c)
+- **What it does and why it is built this way:** I fixed the GitHub Actions workflow so that the Flutter web application can be built and deployed to GitHub Pages. I added the necessary steps for getting the Flutter project, creating the .env file from GitHub Secrets, running tests, and building the web version with the correct base path for GitHub Pages.
+
+## 2. Flutter Test Code
+- **File:** test\widget_test.dart
+- **Commit:** [https://github.com/Siyanfr/Agos-App-Finals/commit/7ab12fc2f202d53e4996ab674f6cc4f6e51a1b5c](https://github.com/Siyanfr/Agos-App-Finals/commit/07da3938272c79d7b0678a04be0ade779eae53c2)
+- **What it does and why it is built this way:** I edited the widget tests to match the actual AGOS application instead of the default Flutter starter template. The tests check important reusable widgets such as the status badge, primary button, report card, and statistics card to make sure they display and behave correctly.
+
+### The AI-written part I understand best
+
+- **File:** `lib/screens/citizen/submit_report_screen.dart` (the `_pickImage` method)
+- **Commit:** https://github.com/Siyanfr/Agos-App-Finals/commit/109b540b1baf9a90e3cd4811469cedf0402e693f
+- **What it does and why we kept it:** `_pickImage` opens the phone's gallery through the `image_picker` package and saves the chosen photo so the preview can show it. Opening the gallery is asynchronous, so the method waits until the user picks a photo or backs out, and nothing stopped me from tapping the upload box again during that wait. While testing I tapped it repeatedly, and the second call reached the plugin while a picker was already open. That threw `PlatformException(already_active, Image picker is already active)`, and the emulator then showed "final_project isn't responding". The fix adds a boolean field, `_isPickingImage`. The method returns right away if it is already true, sets it to true before opening the gallery, and sets it back to false in a `finally` block. `finally` matters because it runs whether the user picks a photo, cancels, or the picker throws an error, so the flag can never get stuck on true and lock the button. It is a plain field instead of `setState` because nothing on screen needs to change; it only works as a gate. The `picked != null` check handles the user closing the gallery without choosing a photo. We kept it because it is small, it fixed the crash without changing how the screen looks, and I saw the crash happen and then stop after the change.
