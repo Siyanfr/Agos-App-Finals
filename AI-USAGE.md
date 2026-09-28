@@ -90,6 +90,11 @@ graded as the finals badge, and it is worth 100 points.
 - **Commit:** [https://github.com/Siyanfr/Agos-App-Finals/commit/7ab12fc2f202d53e4996ab674f6cc4f6e51a1b5c](https://github.com/Siyanfr/Agos-App-Finals/commit/07da3938272c79d7b0678a04be0ade779eae53c2)
 - **What it does and why it is built this way:** I edited the widget tests to match the actual AGOS application instead of the default Flutter starter template. The tests check important reusable widgets such as the status badge, primary button, report card, and statistics card to make sure they display and behave correctly.
 
+## 3. Logout Button Replacing the Profile Icon
+- **File:** `lib/screens/authority/authority_dashboard_screen.dart` and `lib/screens/citizen/citizen_dashboard_screen.dart`
+- **Commit:** https://github.com/Siyanfr/Agos-App-Finals/commit/ae002ac03e8fc13d5d16feba16a1b3870c731a85
+- **What it does and why it is built this way:** I replaced the circular profile icon in the app bar of both the Authority and Citizen dashboards with a plain "Log Out" text button. Before, logging out only worked by tapping the profile picture, which was not obvious and could confuse users about how to sign out. The new `TextButton` calls the same `_logout` method as before, and its label is styled in the app's `error` color with a bold weight so it is clearly visible and reads as a sign-out action. I also reduced the right padding from `AppSpacing.md` to `AppSpacing.sm` so the button sits comfortably in the app bar. Since I made the same change in both screens, logging out now works consistently for both user roles.
+
 ### The AI-written part I understand best
 
 - **File:** `lib/screens/citizen/submit_report_screen.dart` (the `_pickImage` method)
