@@ -148,12 +148,15 @@ class _CitizenDashboardScreenState extends State<CitizenDashboardScreen> {
         showBrandIcon: true,
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: AppSpacing.md),
-            child: GestureDetector(
-              onTap: _logout,
-              child: const CircleAvatar(
-                backgroundColor: AppColors.surfaceTint,
-                child: Icon(Icons.person_outline, color: AppColors.primary),
+            padding: const EdgeInsets.only(right: AppSpacing.sm),
+            child: TextButton(
+              onPressed: _logout,
+              child: const Text(
+                'Log Out',
+                style: TextStyle(
+                  color: AppColors.error,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
