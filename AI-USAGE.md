@@ -95,6 +95,12 @@ graded as the finals badge, and it is worth 100 points.
 - **Commit:** https://github.com/Siyanfr/Agos-App-Finals/commit/ae002ac03e8fc13d5d16feba16a1b3870c731a85
 - **What it does and why it is built this way:** I replaced the circular profile icon in the app bar of both the Authority and Citizen dashboards with a plain "Log Out" text button. Before, logging out only worked by tapping the profile picture, which was not obvious and could confuse users about how to sign out. The new `TextButton` calls the same `_logout` method as before, and its label is styled in the app's `error` color with a bold weight so it is clearly visible and reads as a sign-out action. I also reduced the right padding from `AppSpacing.md` to `AppSpacing.sm` so the button sits comfortably in the app bar. Since I made the same change in both screens, logging out now works consistently for both user roles.
 
+## 4. GPS Coordinates Converted to a Readable Address
+- **File:** `lib/screens/citizen/submit_report_screen.dart`
+- **Commit:**[ https://github.com/Siyanfr/Agos-App-Finals/commit/ae002ac03e8fc13d5d16feba16a1b3870c731a85](https://github.com/Siyanfr/Agos-App-Finals/commit/31e01578f587a20b9cefad44a4ca5a66b84246f5)
+- **What it does and why it is built this way:** I changed the GPS location feature so that instead of only showing latitude and longitude numbers, the app converts the coordinates into a readable address. I added a reverse-geocoding function using OpenStreetMap's Nominatim API, which takes the coordinates from the GPS tracker and returns a location name such as the city and region. The app still stores the actual latitude and longitude separately, so the exact GPS coordinates are not lost even if the address lookup fails. This makes the location easier for users to understand while keeping the actual coordinates available for the report.
+
+
 ### The AI-written part I understand best
 
 - **File:** `lib/screens/citizen/submit_report_screen.dart` (the `_pickImage` method)
