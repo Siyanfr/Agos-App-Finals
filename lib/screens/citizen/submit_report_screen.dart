@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../theme.dart';
 import '../../widgets/image_upload.dart';
 import '../../widgets/navigation_header.dart';
@@ -23,6 +25,8 @@ class _SubmitReportScreenState extends State<SubmitReportScreen> {
   final _descriptionController = TextEditingController();
   String? _imagePath;
   Uint8List? _imageBytes;
+  double? _latitude;
+  double? _longitude;
   bool _isDetectingLocation = false;
   bool _isSubmitting = false;
   bool _isPickingImage = false;
@@ -60,6 +64,50 @@ class _SubmitReportScreenState extends State<SubmitReportScreen> {
     });
   }
 
+  /// Turns coordinates into a readable address using OpenStreetMap's free
+  /// Nominatim API. Returns null on any failure so the caller can fall back
+  /// to showing raw coordinates instead.
+  Future<String?> _reverseGeocode(double lat, double lng) async {
+    try {
+      final uri = Uri.parse(
+        'https://nominatim.openstreetmap.org/reverse'
+        '?format=json&lat=$lat&lon=$lng&zoom=16&addressdetails=1',
+      );
+
+      final response = await http.get(
+        uri,
+        headers: {
+          // Nominatim's usage policy asks apps to identify themselves.
+          // Browsers block overriding this header on web, so this only
+          // takes effect on Android/iOS/desktop.
+          'User-Agent': 'AGOS-FlutterApp (github.com/Siyanfr/Agos-App-Finals)',
+        },
+      ).timeout(const Duration(seconds: 6));
+
+      if (response.statusCode != 200) return null;
+
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      final address = data['address'] as Map<String, dynamic>?;
+
+      if (address != null) {
+        final locality = address['city'] ??
+            address['town'] ??
+            address['municipality'] ??
+            address['suburb'] ??
+            address['village'];
+        final region = address['state'] ?? address['region'];
+
+        if (locality != null && region != null) {
+          return '$locality, $region';
+        }
+      }
+
+      return data['display_name'] as String?;
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> _autoDetectLocation() async {
     setState(() => _isDetectingLocation = true);
     try {
@@ -84,8 +132,19 @@ class _SubmitReportScreenState extends State<SubmitReportScreen> {
       }
 
       final position = await Geolocator.getCurrentPosition();
+
+      // Store the real coordinates regardless of whether the address lookup
+      // below succeeds, so the report's actual location is never lost.
+      _latitude = position.latitude;
+      _longitude = position.longitude;
+
+      final placeName = await _reverseGeocode(
+        position.latitude,
+        position.longitude,
+      );
+
       setState(() {
-        _locationController.text =
+        _locationController.text = placeName ??
             '${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}';
       });
     } catch (e) {
@@ -117,22 +176,13 @@ class _SubmitReportScreenState extends State<SubmitReportScreen> {
 
       final uid = FirebaseAuth.instance.currentUser!.uid;
 
-      double? lat;
-      double? lng;
-      final locationText = _locationController.text;
-      if (locationText.contains(',')) {
-        final parts = locationText.split(',');
-        lat = double.tryParse(parts[0].trim());
-        lng = double.tryParse(parts[1].trim());
-      }
-
       await FirestoreService().createReport(
         reporterId: uid,
         photoUrl: photoUrl,
         description: _descriptionController.text,
-        latitude: lat,
-        longitude: lng,
-        locationName: locationText,
+        latitude: _latitude,
+        longitude: _longitude,
+        locationName: _locationController.text,
       );
 
       if (!mounted) return;
