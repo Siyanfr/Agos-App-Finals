@@ -109,6 +109,15 @@ graded as the finals badge, and it is worth 100 points.
 - **Commit:**[ https://github.com/Siyanfr/Agos-App-Finals/commit/ae002ac03e8fc13d5d16feba16a1b3870c731a85](https://github.com/Siyanfr/Agos-App-Finals/commit/31e01578f587a20b9cefad44a4ca5a66b84246f5)
 - **What it does and why it is built this way:** I changed the GPS location feature so that instead of only showing latitude and longitude numbers, the app converts the coordinates into a readable address. I added a reverse-geocoding function using OpenStreetMap's Nominatim API, which takes the coordinates from the GPS tracker and returns a location name such as the city and region. The app still stores the actual latitude and longitude separately, so the exact GPS coordinates are not lost even if the address lookup fails. This makes the location easier for users to understand while keeping the actual coordinates available for the report.
 
+## 5. Authority Screens
+- **File:** `lib/screens/authority/authority_dashboard_screen.dart, lib/screens/authority/report_action_screen.dart, and lib/main.dart`
+- **Commit:** https://github.com/Siyanfr/Agos-App-Finals/commit/8da48e82f2c319da561a371ad4802e716de05fd8
+- **What it does and why it is built this way:** Although I listed this earlier in the "How I Used AI" section, I also played a part here as I coded parts of the application's internal logic, data handling, and routing. While the AI generated the structural widgets, I manually wired the AuthorityDashboardScreen into main.dart to set it as the active testing environment. I also hand-coded the _placeholderReports list with realistic mock data to ensure the UI could be tested before Firestore integration, and wrote the state management logic for _selectedFilter to properly filter reports into 'Pending', 'Resolved', and 'Rejected' categories. Furthermore, I implemented the Navigator.push logic so clicking a report card properly routes to the ReportActionScreen.
+
+## 6. Citizen Screens
+- **File:** `lib/screens/authority/authority_dashboard_screen.dart, lib/screens/authority/report_action_screen.dart, and lib/main.dart`
+- **Commit:** [https://github.com/Siyanfr/Agos-App-Finals/commit/8da48e82f2c319da561a371ad4802e716de05fd8](https://github.com/Siyanfr/Agos-App-Finals/commit/ad22da2dcdb749754a34160d47ce345cb9feb05a)
+- **What it does and why it is built this way:** Although I listed this earlier in the "How I Used AI" section, I also played a part here as I coded parts of the device hardware integration and screen navigation. In the citizen_dashboard_screen.dart, I manually implemented the onPressed routing to connect the dashboard to the newly created SubmitReportScreen. Inside the submit screen itself, I coded the _autoDetectLocation() function using the Geolocator package. I specifically handled the complex logic for checking if location services are enabled, requesting and managing various permission states (such as denied vs. permanently denied), and created the _showLocationError function to trigger SnackBar popups that provide clear feedback to the user when location fetching fails.
 
 ### The AI-written part I understand best
 
