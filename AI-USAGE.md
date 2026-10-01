@@ -13,6 +13,14 @@ graded as the finals badge, and it is worth 100 points.
 - **What I kept, what I changed, and why:** Kept the structure as given. One real gap it caught for me: my Design System had no color defined for a "Rejected" status, only Pending and Resolved, so it flagged this and proposed reusing the existing `error` color rather than inventing a new one, which I accepted.
 - **Commit:** https://github.com/Siyanfr/Agos-App-Finals/commit/35f48fee52a2193745ae9986b2028559bdd0fc6c
 
+### 2026-09-18 - Building the dashboard, submit report, and authority screen widgets
+
+- **Tool:** Claude (Anthropic)
+- **What I asked for:** Full screens for the Citizen Dashboard, Submit Report, and the Authority side, built against my mockup, one screen at a time so I could see real progress instead of disconnected widget files.
+- **What it gave back:** The molecule and organism widgets my mockup needed that weren't in the first batch of atoms: `ReportCard`, `StatSummaryCard`, `DetailModal`, and `NavigationHeader` for the Citizen Dashboard; `ImageUploadComponent` for Submit Report; `PhotoEvidenceViewer` for the Authority Report Action screen.
+- **What I kept, what I changed, and why:** Kept all of these as given at the time. Several were revised in later sessions (PhotoEvidenceViewer's placeholder-vs-real-photo bug, ImageUploadComponent's web byte-handling), which are covered in their own entries.
+- **Commit:** https://github.com/Siyanfr/Agos-App-Finals/commit/fa20c09106dbf6cd893298d73c948c36a31d041d
+
 ### 2026-09-19 - FlutterFire CLI setup and a Windows PATH issue
 
 - **Tool:** Claude (Anthropic)
@@ -52,6 +60,7 @@ graded as the finals badge, and it is worth 100 points.
 - **What it gave back:** An explanation that `dart:io`'s `File` class doesn't exist on Flutter Web, then a rewrite of the image-picking and Cloudinary upload code to use raw bytes (`Uint8List`) instead of file paths, which works identically on both platforms.
 - **What I kept, what I changed, and why:** Kept the byte-based approach as given; re-tested on both the Android emulator and Chrome afterward to confirm neither platform regressed.
 - **Commit:** https://github.com/Siyanfr/Agos-App-Finals/commit/33d63d7f008be10a7c79c595daac0a4c8b34f7c0
+
 
 ## 2. Where the AI got it wrong
 
