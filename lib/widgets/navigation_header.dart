@@ -35,7 +35,11 @@ class NavigationHeader extends StatelessWidget implements PreferredSizeWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (showBrandIcon) ...[
-            const Icon(Icons.shield_outlined, color: AppColors.primary),
+            Image.asset(
+              'assets/agos_logo.png',
+              width: 40,
+              height: 40,
+            ),
             const SizedBox(width: AppSpacing.sm),
           ],
           Text(

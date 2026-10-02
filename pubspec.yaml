@@ -33,6 +33,7 @@ flutter:
   uses-material-design: true
   assets:
     - .env
+    - assets/agos_logo.png
   # Put images, fonts and sounds in assets/ and list them here, for example:
   # assets:
   #   - assets/images/
