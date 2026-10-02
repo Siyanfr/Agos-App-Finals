@@ -78,10 +78,10 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 Image.asset(
                   'assets/agos_logo.png',
-                  width: 160,
-                  height: 160,
+                  width: 250,
+                  height: 250,
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: 1),
 
                 const Text(
                   'Welcome to AGOS',
