@@ -1,5 +1,7 @@
 # AGOS
 
+[![Made with AI](https://img.shields.io/badge/Made_with-AI_assistance-blue)](AI-USAGE.md)
+
 ## 1. Overview
 
 AGOS is a mobile app for reporting illegally parked vehicles in Angeles City.
