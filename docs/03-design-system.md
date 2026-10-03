@@ -2,7 +2,7 @@
 
 **This document needs a visual, not just this text.** The complete visual design system is available here:
 
-[Final Project Design System V2](docs/assets/M7A3%20-%20Final%20Project%20Design%20System%20V2.pdf)
+[Final Project Design System V2](assets/M7A3%20-%20Final%20Project%20Design%20System%20V2.pdf)
 
 The PDF shows the palette, type scale, spacing system, reusable components, and their visual treatment in one place.
 
