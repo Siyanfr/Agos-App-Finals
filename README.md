@@ -159,7 +159,6 @@ rules and the full checklist, are in
 | [Demo video](docs/05-demo-video.md) | the recording and what it shows |
 | [Security and privacy](docs/06-security-and-privacy.md) | what the app stores and how it's protected |
 | [Security checklist](docs/SECURITY-CHECKLIST.md) | the full Yes/No/N/A checklist, filled in |
-| [Start here](START-HERE.md) | how this repo works |
 
 ## Status and what is next
 
