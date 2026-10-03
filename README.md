@@ -2,65 +2,67 @@
 
 [![Made with AI](https://img.shields.io/badge/Made_with-AI_assistance-blue)](AI-USAGE.md)
 
-## 1. Overview
+> A mobile app for reporting illegally parked vehicles in Angeles City, built for citizens to report and local authorities to review and resolve.
 
-AGOS is a mobile app for reporting illegally parked vehicles in Angeles City.
-Citizens can submit a report with a photo, location, and description of an
-offending vehicle; local authority reviewers can see all incoming reports,
-inspect the evidence, and mark each one as Resolved or Rejected. It replaces
-informal channels like public Facebook shaming pages with a structured,
-trackable reporting pipeline.
+**Live demo:** [Open AGOS →](https://siyanfr.github.io/Agos-App-Finals/)
 
-## 2. Setup and installation
+**Demo video:** [Watch the demo →](https://drive.google.com/file/d/1X8LlyfmZX_Bye2a_AhVtZTyae8NzjhdD/view?usp=drive_link) (see also [`docs/05-demo-video.md`](docs/05-demo-video.md) for timestamps)
 
-Built with:
-- Flutter (Dart SDK `^3.8.0`, as set in `pubspec.yaml`)
+**Presentation slides:** [View the slides →](https://drive.google.com/file/d/1J0NI0Yc84RKIR7LRcSbujvWXIT78xUdD/view?usp=sharing)
 
-To get the project running from nothing:
+**Course:** Applications Development and Emerging Technologies (6ADET), Holy Angel University
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/Siyanfr/Agos-App-Finals.git
-   cd Agos-App-Finals
-   ```
-2. Install dependencies:
-   ```
-   flutter pub get
-   ```
-3. Firebase configuration (Authentication + Cloud Firestore):
-   - This project uses Firebase Authentication and Cloud Firestore. Firebase
-     is connected via the FlutterFire CLI, which generates
-     `lib/firebase_options.dart` — if you're setting up your own Firebase
-     project, run `flutterfire configure` after cloning.
-   - You'll need Email/Password sign-in enabled in Firebase Authentication,
-     plus a `users` collection (with `email`, `fullName`, `role` fields, doc
-     ID matching each account's UID) and a `reports` collection in Firestore.
-     See `docs/06-security-and-privacy.md` for the published security rules.
-4. Photo storage (Cloudinary):
-   - Report photos are uploaded to Cloudinary, not Firebase Storage (see
-     "Known issues and next steps" for why).
-   - Copy `.env.example` to `.env` and fill in your own values:
-     ```
-     CLOUDINARY_CLOUD_NAME=your_cloud_name_here
-     CLOUDINARY_UPLOAD_PRESET=your_upload_preset_here
-     ```
-   - Your Cloudinary upload preset must be set to **Unsigned** signing mode.
-   - Never commit your real `.env` file — it's already listed in
-     `.gitignore`.
+**Author:** Cean Carosus
 
-## 3. How to run it
+---
 
-```
+## Screenshots
+
+| Login | Citizen Dashboard | Report Details |
+| --- | --- | --- |
+| ![Login](docs/assets/Login_Agos.png) | ![Citizen Dashboard](docs/assets/CitizenDashboard_Agos.png) | ![Report Details](docs/assets/CitizenModal_Agos.png) |
+
+| Submit Report | Authority Dashboard | Report Action |
+| --- | --- | --- |
+| ![Submit Report](docs/assets/SubmitReport_Agos.png) | ![Authority Dashboard](docs/assets/AuthorityDashboard_Agos.png) | ![Report Action](docs/assets/ReportAction_Agos.png) |
+
+## What it does
+
+- Citizens submit a report of an illegally parked vehicle with a photo, an auto-detected (or manually typed) location, and a description.
+- GPS coordinates are reverse-geocoded into a readable address instead of raw numbers.
+- Citizens track their own reports' status live, Pending, Resolved, or Rejected, with no refresh needed.
+- Authority accounts see every incoming report city-wide, filterable by status, and can resolve or reject each one with notes.
+- A status update by an authority account syncs live to the citizen's dashboard, since both read from the same Firestore collection.
+
+## Built with
+
+| | |
+| --- | --- |
+| Framework | Flutter (Dart SDK `^3.8.0`) |
+| State | `setState`, plus Firestore `StreamBuilder`s for live data |
+| Storage | Cloud Firestore (reports, users) + Cloudinary (report photos) |
+| Other packages | `firebase_auth` — seeded-account sign-in; `image_picker` — photo capture/selection; `geolocator` — GPS auto-detect; `http` — Cloudinary upload and reverse-geocoding calls; `flutter_dotenv` — reads Cloudinary config from `.env`; `device_preview` — multi-device preview while developing |
+
+## Running it yourself
+
+```bash
+flutter pub get
+cp .env.example .env      # fill in your own Cloudinary values, see below
 flutter run -d chrome
 ```
 
-(or select an Android/iOS device/emulator instead of `chrome`). On first
-successful run, you should see the AGOS login screen with the
-`device_preview` phone-frame wrapper active, letting you switch between
-device sizes from the toolbar at the top of the window.
+(or target an Android/iOS device or emulator instead of `chrome`). Requires
+Flutter with Dart SDK `^3.8.0` (run `flutter --version` to check yours).
 
-To actually see the app's data, log in with one of the 3 pre-seeded demo
-accounts (no self-registration exists by design):
+You'll also need your own Firebase project connected via
+`flutterfire configure` (generates `lib/firebase_options.dart`), with
+Email/Password Authentication enabled and a `users` collection seeding at
+least one account's `email`, `fullName`, and `role` fields. See
+[`docs/06-security-and-privacy.md`](docs/06-security-and-privacy.md) for the
+full Firestore security rules.
+
+There's no self-registration by design; log in with one of these pre-seeded
+demo accounts to actually see the app's data:
 
 | Role | Email |
 | --- | --- |
@@ -68,109 +70,88 @@ accounts (no self-registration exists by design):
 | Citizen | citizen2@agos.app |
 | Authority | authority1@agos.app |
 
-(Ask the project owner for the shared demo password, or set your own if
-you're seeding a fresh Firebase project — see `docs/06-security-and-privacy.md`.)
+**Password (all 3 accounts):** `agos2026`
 
-## 4. Features and usage
+This is a shared demo password for a class project with invented seed data,
+not a real-world credential. Set your own if you're seeding a fresh Firebase
+project of your own — see
+[`docs/06-security-and-privacy.md`](docs/06-security-and-privacy.md).
 
-AGOS has two roles, routed from a single login screen based on the signed-in
-account's role, and 5 screens total, all backed by live Firestore data:
+### Environment variables
 
-1. **Login Screen** — sign in with a seeded account; routes to the Citizen or
-   Authority dashboard automatically based on role.
-2. **Citizen Home Dashboard** — live total/pending counts and a list of the
-   signed-in citizen's own submitted reports (via a Firestore `StreamBuilder`,
-   so it updates in real time). Tapping a report card opens a modal with the
-   full photo, description, location, timestamp, status, and any authority
-   notes. A "+ Submit New Report" button opens the Submit Report screen.
-3. **Submit Report** — take/choose a photo, auto-detect GPS location (or type
-   it manually), add a description, and submit. The photo uploads to
-   Cloudinary and the report is written to Firestore with status `Pending`.
-4. **Authority Review Dashboard** — live city-wide report totals and a
-   filterable (All / Pending / Resolved / Rejected) list of every submitted
-   report. Tapping a report opens the Report Action screen.
-5. **Authority Report Action & Resolution** — full photo evidence, report
-   details, a status selector (Pending/Resolved/Rejected), a notes field, and
-   an "Update & Save Status" button that writes back to Firestore — changes
-   here appear live on the citizen's dashboard without any refresh needed.
+This project reads its configuration from a `.env` file that is **not** in the
+repository. Copy `.env.example`, fill in your own values, and never commit the
+result.
 
-## 5. Project structure
+| Variable | What it is | Where to get one |
+| --- | --- | --- |
+| `CLOUDINARY_CLOUD_NAME` | Your Cloudinary account's cloud name | Cloudinary dashboard, after creating a free account |
+| `CLOUDINARY_UPLOAD_PRESET` | An unsigned upload preset name | Cloudinary dashboard → Settings → Upload → Upload presets (Signing Mode: Unsigned) |
 
-```
-lib/
-  main.dart              # App entry point, dotenv + Firebase init, device_preview wrapper
-  theme.dart             # AppColors, AppSpacing, AppRadius tokens + ThemeData
-  firebase_options.dart  # Generated by FlutterFire CLI
-  models/
-    report_model.dart    # Report data class
-  services/
-    auth_service.dart       # Firebase Auth sign-in/out, fetches the user's role from Firestore
-    firestore_service.dart  # Report reads/writes/status updates
-    storage_service.dart    # Cloudinary photo upload
-  screens/
-    login_screen.dart
-    citizen/
-      citizen_dashboard_screen.dart
-      submit_report_screen.dart
-    authority/
-      authority_dashboard_screen.dart
-      report_action_screen.dart
-  widgets/
-    primary_button.dart
-    text_input_field.dart
-    status_badge.dart
-    detail_row.dart
-    report_card.dart
-    image_upload.dart
-    photo_evidence_viewer.dart
-    stat_summary_card.dart
-    navigation_header.dart
-    detail_modal.dart
-```
+## Privacy and secrets
 
-## 6. Screenshots
+AGOS stores report data (photo, description, location, timestamp, status) and
+basic user profile data (email, name, role) in Cloud Firestore; report photos
+are hosted on Cloudinary. Secrets live in a gitignored `.env` locally, and as
+repository secrets in the GitHub Actions deploy workflow; the data itself is
+protected by Firestore security rules (a citizen can only read/write their own
+reports, only an authority account can change a status), not by hiding any
+config value. All sample accounts, reports, and the demo video use invented
+data, no real personal information. Full details, including the published
+rules and the full checklist, are in
+[`docs/06-security-and-privacy.md`](docs/06-security-and-privacy.md) and
+[`docs/SECURITY-CHECKLIST.md`](docs/SECURITY-CHECKLIST.md).
 
-- Login Screen:
-<img width="456" height="1041" alt="qemu-system-x86_64_2wn9jfzzNw" src="https://github.com/user-attachments/assets/6adc5297-98b1-4346-bbc4-b403d2ef0ca6" />
+## Project documentation
 
-- Citizen Home Dashboard:
-<img width="456" height="1041" alt="image" src="https://github.com/user-attachments/assets/43161cdf-4916-492d-a7e2-afdbae514575" />
+| Document | |
+| --- | --- |
+| [Proposal](docs/01-proposal.md) | the problem, the users, the scope |
+| [Mockup and wireframes](docs/02-mockup.md) | what it looks like, and the screen flow |
+| [Design system](docs/03-design-system.md) | colors, type, spacing, components |
+| [Weekly reports](docs/04-weekly-reports.md) | what happened each week |
+| [Demo video](docs/05-demo-video.md) | the recording and what it shows |
+| [Security and privacy](docs/06-security-and-privacy.md) | what the app stores and how it's protected |
+| [Security checklist](docs/SECURITY-CHECKLIST.md) | the full Yes/No/N/A checklist, filled in |
+| [Start here](START-HERE.md) | how this repo works |
 
-- Report Details modal:
-<img width="456" height="1041" alt="image" src="https://github.com/user-attachments/assets/c9b7069b-c495-4c79-bbab-a5fbb3f93f44" />
+## Status and what is next
 
-- Submit Report:
-<img width="456" height="1041" alt="image" src="https://github.com/user-attachments/assets/53db65c6-3393-443c-b8b4-af0e86f6a328" />
-
-- Authority Review Dashboard:
-<img width="390" height="895" alt="image" src="https://github.com/user-attachments/assets/99fe19e9-d2ff-43b0-9c7f-9f8b9280b99f" />
-
-- Authority Report Action & Resolution:
-<img width="456" height="1041" alt="image" src="https://github.com/user-attachments/assets/d63d2fc3-0c97-4030-aacc-513d5a7af502" />
-
-## 7. Known issues and next steps
+**Working end to end:** login routed by role, citizen report submission with
+photo and location, authority review and resolution, and live status sync
+between the two roles, tested on both the Android emulator and Chrome.
 
 **Known issues:**
-- The Firestore `status` field on a report is not restricted to an enum at
-  the rules level — only authority accounts can write to it at all, but a
-  malformed request could in theory write a value other than `Pending`,
-  `Resolved`, or `Rejected`. The app's own UI never generates one.
-- Report photos are hosted on Cloudinary using an **unsigned** upload preset,
-  which is Cloudinary's standard client-side upload method but means anyone
-  who extracted the cloud name and preset from the app could technically
-  upload arbitrary images through it. Acceptable for a class project; see
-  `docs/06-security-and-privacy.md` for the full reasoning.
-- The Firebase API key is not restricted in the Google Cloud console
-  (deliberate — access is enforced by Firestore security rules instead; see
-  `docs/SECURITY-CHECKLIST.md`, row 16).
+- The Firestore `status` field isn't restricted to an enum at the rules
+  level, only authority accounts can write to it at all, but nothing stops a
+  malformed value in theory.
+- Cloudinary photo uploads use an unsigned preset, standard for client-side
+  uploads, but it means anyone who extracted the cloud name and preset could
+  technically upload through it. Accepted as reasonable for a class project.
+- The Firebase API key isn't restricted in the Google Cloud console,
+  deliberate, since access is enforced by Firestore rules instead.
 
-**Next steps:**
-- Optionally restrict the Firebase API key in the Google Cloud console.
-- Add a Firestore rule constraining `status` to the 3 valid values.
-- Finish `AI-USAGE.md` per the finals-badge requirements.
+**What's next:**
+- Push notifications, so citizens know the moment their report's status
+  changes.
+- Self-registration, instead of only the seeded demo accounts.
+- AI-powered image detection, to automatically flag illegally parked vehicles
+  in a submitted photo.
 
-## AI usage
+## Credits
 
-Parts of this project's Flutter/Firebase implementation, debugging, and
-documentation were developed with the assistance of Claude (Anthropic). See
-`AI-USAGE.md` for details.
+- Packages: see [`pubspec.yaml`](pubspec.yaml)
+- Everything else: built for AGOS, no third-party assets reused
+
+## AI use
+
+![Built with AI assistance](https://img.shields.io/badge/built%20with-AI%20assistance-0b5fff)
+
+This project was built with heavy assistance from Claude (Anthropic),
+covering most of the Flutter/Firebase implementation, debugging, and
+documentation. Full details, including what was done independently, are in
+[AI-USAGE.md](AI-USAGE.md).
+
+## Licence
+
+MIT, see [LICENSE](LICENSE).
