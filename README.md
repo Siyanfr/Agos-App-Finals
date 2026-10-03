@@ -186,7 +186,6 @@ between the two roles, tested on both the Android emulator and Chrome.
 ## Credits
 
 - Packages: see [`pubspec.yaml`](pubspec.yaml)
-- Logo: AI-generated and refined with AI assistance (see `AI-USAGE.md`)
 - Everything else: built for AGOS, no third-party assets reused
 
 ## AI use
