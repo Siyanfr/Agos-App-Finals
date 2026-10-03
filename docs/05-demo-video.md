@@ -2,7 +2,7 @@
 
 **Status:** Recording completed; hosted link provided below.
 
-**File:** [Watch the Video via Google Drive!](https://drive.google.com/file/d/1X8LlyfmZX_Bye2a_AhVtZTya8eNzjhdD/view?usp=sharing)
+**File:** [Watch the Video via Google Drive!](https://drive.google.com/file/d/1X8LlyfmZX_Bye2a_AhVtZTyae8NzjhdD/view?usp=sharing)
 
 **Length:** [4 minutes 44 seconds]
 
