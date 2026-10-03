@@ -1,38 +1,21 @@
 # Demo video
 
-**File:** `demo.mp4` in this folder, or the hosted link (see below)
-**Length:** aim for 3 to 5 minutes
-**Recorded on:** the device you used
+**Status:** Recording completed; hosted link provided below.
+
+**File:** [Watch the Video via Google Drive!](https://drive.google.com/file/d/1X8LlyfmZX_Bye2a_AhVtZTya8eNzjhdD/view?usp=sharing)
+
+**Length:** [4 minutes 44 seconds]
+
+**Recorded on:** [PC, Windows 10, Zoom Recording]
 
 ## What it shows
 
-A short list, in order, so a viewer can skip to what they need:
+- 0:00 Introduction — what AGOS is and who it's for
+- 0:09 The Problem — informal Facebook parking-complaint pages (ParkSerye) and why they don't work
+- 0:25 Demo for Citizen — login, dashboard, submitting a report with a photo and auto-detected location
+- 0:54 Demo for Authority — login, reviewing incoming reports, filtering by status, resolving a report
+- 1:17 Tech Stack — Flutter, Firebase Authentication, Cloud Firestore, Cloudinary, with real code and security rules shown
+- 1:44 How AI Was Used — how Claude was used to build AGOS, and what was done independently
+- 4:15 Challenges — limited backend experience going in, and a rushed initial proposal that needed reworking
+- 4:35 What's Next? — push notifications, self-registration, and AI-powered image detection
 
-- 0:00 what the app is and who it is for
-- 0:20 ...
-- 1:10 ...
-
-Cover, in this order: the main user journey end to end, anything that only works
-on a real device (camera, GPS, sensors), and the thing you are proudest of.
-
-## Getting it into the repo
-
-GitHub **blocks any file over 100 MB** and warns over 50 MB, so compress before
-you commit:
-
-```bash
-ffmpeg -i raw.mp4 -vcodec libx264 -crf 28 -preset slow \
-       -vf scale=-2:720 -acodec aac -b:a 96k demo.mp4
-```
-
-Raise `-crf` (28 to 32) or drop to `-2:480` if it is still too large. If it still
-does not fit, attach it to a **GitHub Release** or upload it unlisted and link it
-here. Never commit the raw capture: git keeps it forever even after you delete
-it.
-
-## Before you record
-
-- Real data off the screen: no classmates' names, numbers, faces or messages.
-- Notifications off.
-- Sensible sample data, not "asdf".
-- One unbroken take per feature. Say what you are doing while you do it.
