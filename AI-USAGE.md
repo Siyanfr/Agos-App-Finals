@@ -1,7 +1,6 @@
 # AI usage
 
-This project was built with AI assistance. This file is the record of it. It is
-graded as the finals badge, and it is worth 100 points.
+The author openly acknowledges the use of AI in this project. This documentation is publicly accessible and linked in the project's [README.md](https://github.com/Siyanfr/Agos-App-Finals/blob/main/README.md) for full transparency.
 
 ## 1. How I used AI
 
