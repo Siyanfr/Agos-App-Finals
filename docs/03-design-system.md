@@ -1,11 +1,11 @@
-# Design system
+# Design System
 
-> Final Project Design System V2 — submitted September 18, 2026.
+## Step A: The palette, as a ColorScheme
 
-## Palette
+### Color Token Table
 
-| Role | Hex | Used for |
-|---|---|---|
+| Role | Hex | Used For |
+|------|-----|----------|
 | `primary` | `#2563EB` | Main buttons, App Bar accents |
 | `onPrimary` | `#FFFFFF` | Text/icons on primary buttons |
 | `secondary` | `#10B981` | Generic success indicators |
@@ -17,40 +17,46 @@
 | `surfaceTint` | `#DBE1FF` | Stat-card backgrounds (e.g. "Total Reports") |
 | `onSurface` | `#1F2937` | Body text, headings, labels |
 | `error` | `#DC2626` | Validation errors, failed submissions, destructive actions |
-| `scrim` | `rgba(0,0,0,0.5)` | Modal/dialog overlay |
+| `scrim` | `rgba(0,0,0,0.5)` | Modal/dialog overlay (needs confirmation: no modal-open screenshot without content on top to sample from) |
 
-## Type scale
+---
 
-| Style | Flutter slot | Size | Weight | Used for |
-|---|---|---|---|---|
+## Step B: The type scale, as a TextTheme
+
+| Your Style | Flutter slot | Size | Weight | Used For |
+|------------|--------------|------|--------|----------|
 | Heading | `headlineSmall` | 28sp | Bold | Screen titles ("Welcome to AGOS," "Submit Report," "Report Details") |
 | Body | `bodyMedium` | 16sp | Regular | Descriptions, placeholder text, list body copy |
 | Field Label | `bodyMedium` (weight override) | 16sp | Medium | Field labels ("Username," "Description," "Location"), section headers ("Your Reports") |
 | Caption | `labelSmall` | 12sp | Regular | Timestamps, hints, helper text |
-| Section Label | `labelSmall` (color override) | 12sp | Bold, letter-spaced, `statusPending` blue | Small-caps section labels inside content blocks (e.g. "VIOLATION DESCRIPTION") |
+| Section Label | `labelSmall` (color override) | 12sp | Bold, letter-spaced, `statusPending` blue (`#004AC6`) | Small caps section labels inside content blocks (e.g. "VIOLATION DESCRIPTION") |
 
-## Spacing
+---
+
+## Step C: Spacing, as constants
 
 ```dart
 class AppSpacing {
   static const double xs = 4;
-  static const double sm = 8;  // spacingTight — closely related elements
-  static const double md = 16; // spacingStandard — between sections/components
-  static const double lg = 24; // spacingScreen — screen edge padding
+  static const double sm = 8;   // spacingTight - closely related elements
+  static const double md = 16;  // spacingStandard - between sections/components
+  static const double lg = 24;  // spacingScreen - screen edge padding
 }
 
 class AppRadius {
   static const double small = 8;   // badges
   static const double medium = 12; // inputs, image containers
   static const double large = 16;  // cards, modal
-  static const double pill = 28;   // buttons — visually near-full pill
+  static const double pill = 28;   // buttons - needs confirmation, visually near-full pill
 }
 ```
 
-## Components
+---
 
-| Component | Level | File | Constructor parameters | Appears on |
-|---|---|---|---|---|
+## Step D: Components, as files
+
+| Component | Level | File | Constructor Parameter | Appears On |
+|-----------|-------|------|-----------------------|------------|
 | Primary Button | Atom | `lib/widgets/primary_button.dart` | `String label, VoidCallback? onPressed, IconData? icon, bool isLoading` | Login, Home Dashboard, Submit Report, Report Details |
 | Text Input Field | Atom | `lib/widgets/text_input_field.dart` | `String label, String? hint, TextEditingController controller, bool obscureText, String? Function(String?)? validator, IconData? leadingIcon, IconData? trailingIcon, bool multiline` | Login, Submit Report |
 | Status Badge | Atom | `lib/widgets/status_badge.dart` | `String status, String label, bool onImage` | Home Dashboard (Report Card), Report Details (photo overlay) |
@@ -62,7 +68,9 @@ class AppRadius {
 | Navigation Header | Organism | `lib/widgets/navigation_header.dart` | `String title, bool showBackButton, VoidCallback? onBack, List<Widget>? actions, bool showBrandIcon` | Home Dashboard, Submit Report, Report History, Report Details |
 | Detail Modal | Organism | `lib/widgets/detail_modal.dart` | `String title, VoidCallback onClose, Widget child, Widget? actionButton` | Report Details |
 
-### The theme file, assembled
+---
+
+## Step E: The theme file, assembled (bonus)
 
 ```dart
 // lib/theme.dart
@@ -110,17 +118,29 @@ final appTheme = ThemeData(
     ),
   ),
 );
+
+class AppSpacing {
+  static const double xs = 4;
+  static const double sm = 8;
+  static const double md = 16;
+  static const double lg = 24;
+}
+
+class AppRadius {
+  static const double small = 8;
+  static const double medium = 12;
+  static const double large = 16;
+  static const double pill = 28;
+}
 ```
 
-> Per the September 20 increment report, `theme.dart` now implements all of
-> the tokens above as `AppColors`, `AppSpacing`, `AppRadius`, and the
-> assembled `ThemeData` — this is live in the codebase, not just planned.
+---
 
-## Changes since the last version
+## What changed, and why
 
-| Element | Prelim said | Now says | Why it changed |
-|---|---|---|---|
-| Palette | 6 hand-picked colors, no status distinction | Kept the full role table, added confirmed `statusPending`, `statusPendingBg`, `statusResolved`, and `surfaceTint`; updated `background` to `#F8F9FF` | Building the actual screens surfaced two dedicated status colors and a light card tint that plain success/error/background/surface didn't cover, and the real background hex was slightly off from the original spec |
-| Radius | Not defined at all | Added `AppRadius` (small/medium/large/pill) | Every button, card, input, and modal in the mockups is consistently rounded — the theme file needed a real value to reuse |
+| Element | Prelim said | Now Says | Why it Changed |
+|---------|-------------|----------|----------------|
+| Palette | 6 hand-picked colors, no status distinction | Kept the hand-picked full role table, added confirmed `statusPending` (`#004AC6`), `statusPendingBg` (`#D9E3F6`), `statusResolved` (`#006C49`), and `surfaceTint` (`#DBE1FF`); updated background to `#F8F9FF` | Building the actual Login/Dashboard/Details/Submit screens surfaced two dedicated status colors and a light card tint that plain success/error/background/surface didn't cover, and the real background hex was slightly off from the original spec |
+| Radius | Not defined at all | Added `AppRadius` (small/medium/large/pill) | Every button, card, input, and the modal in the mockups is consistently rounded, so the theme file needed a real value to reuse |
 | Heading size | 24sp | 28sp | Confirmed directly from the Login screen |
 | Field labels | No dedicated style | 16sp Medium (weight override on `bodyMedium`, not a new size) | Confirmed directly from the Username field label |
