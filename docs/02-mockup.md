@@ -1,6 +1,7 @@
-## Screens with Label (Step A, B, C)
+# Mockup and wireframes
 
-### Login Screen
+## Mockup
+### 1. Login Screen
 <img width="390" height="882" alt="Login" src="https://github.com/user-attachments/assets/9f4b7739-00c9-4472-9492-77b2bf571d2e" />
 
 **What the user does here:** Selects or enters their seeded account credentials (for Citizen 1, Citizen 2, or Authority 1) and authenticates into the application.
@@ -13,7 +14,7 @@
 
 ---
 
-### Citizen Home Dashboard & History Screen (with Modal Report Details)
+### 2. Citizen Home Dashboard & History Screen (with Modal Report Details)
 
 <img width="406" height="923" alt="Home Dashboard" src="https://github.com/user-attachments/assets/525d0788-46f4-460f-9b4c-565a2db10840" />
 <img width="406" height="923" alt="Report Details Overlay" src="https://github.com/user-attachments/assets/96e33ab8-3b05-4733-a83f-8909967a9209" />
@@ -28,7 +29,7 @@
 
 ---
 
-### Submit Report
+### 3. Submit Report
 <img width="406" height="1005" alt="Submit Report" src="https://github.com/user-attachments/assets/66d67679-0608-4524-ac25-e9b127b04e29" />
 
 **What the user does here:** Captures or uploads photo evidence of an illegally parked vehicle, auto-detects or manually types the location, adds a violation description, and submits the incident.
@@ -43,7 +44,7 @@
 
 ---
 
-### Authority Review Dashboard
+### 4. Authority Review Dashboard
 
 <img width="406" height="1056" alt="Authority Review Dashboard" src="https://github.com/user-attachments/assets/9398a7e8-5393-4979-9b1b-460c145ca9a2" />
 
@@ -57,7 +58,7 @@
 
 ---
 
-### Authority Report Action & Resolution Screen
+### 5. Authority Report Action & Resolution Screen
 
  <img width="422" height="1167" alt="Report Action   Resolution - Authority View" src="https://github.com/user-attachments/assets/9b393df1-cb25-4b56-a711-cc3d5fa8382e" />
 
@@ -72,7 +73,7 @@
 
 ---
 
-## Screen Prototype (Step D)
+## Screen Prototype 
 
 ### Citizen Screens
 
@@ -85,10 +86,68 @@
 
 ---
 
-## What changed, and why
+## Wireframes
 
-| Element | Prelim said | Now Says | Why it Changed |
-|---------|-------------|----------|----------------|
-| Screen Architecture & Navigation Flow | 5 separate full-page routes: Login, Home Dashboard, Submit Report, Report History, and Report Details. | 5 Primary Screens + 1 In-Place Modal Overlay: Bypasses separate Report History page by merging it into Citizen Home Dashboard, converts Report Details into a centered modal overlay (`showDialog`), and adds 2 dedicated Authority screens. | In wireframes, having separate pages for History and Details created unnecessary route depth and back-stack overhead. Merging History into the main dashboard simplifies citizen navigation. Converting Details into a modal dialog over a dimmed/blurred backdrop preserves visual context. Adding the Authority Review Dashboard and Action Screen fixes the critical logic gap in the prelim wireframe where citizen reports had no authority side to review or resolve them. |
-| Bottom Navigation Bar | Wireframes included a 4-icon bottom navigation bar (Home, Reports, Alerts, Settings) on dashboard screens. | No Bottom Navigation Bar. Screens use top app bars and direct contextual primary action buttons instead. | During mockup visual painting, the bottom navigation bar proved redundant because the entire citizen workflow lives cleanly between the Home Dashboard and Submit Report screens. Removing it freed up significant vertical screen space, allowing report list cards to extend cleanly down the viewport without clutter. |
-| User Roles & Account Routing | Wireframe assumed a single generic citizen user logging in with email/password and a static "Under Review" status. | Role-based system using 3 Pre-Seeded Accounts (Citizen 1, Citizen 2, Authority 1) with 3 explicit report statuses: Pending, Resolved, and Rejected. | The prelim wireframe lacked role distinction and included an ambiguous "Under Review" state. To make the app realistic for demo testing without building complex sign-up screens, pre-seeded accounts route users directly to their respective portals. Standardizing statuses to Pending, Resolved, and Rejected streamlines enforcement decision-making on the Authority Action screen. |<img width="390" height="882" alt="Login" src="https://github.com/user-attachments/assets/efdd561d-5e27-43b1-b665-6d17d0c6b080" />
+## 1. Login
+
+> **[PASTE IMAGE HERE: Figure 3. Mobile Login Screen]**
+> Replace this block with: `![Figure 3. Mobile Login Screen](path/to/login-mobile.png)`
+
+
+| Screen | Layout Notes | Inputs | Actions → Destination | Data Shown |
+|--------|--------------|--------|-----------------------|------------|
+| Login | Displays the AGOS logo at the top, followed by email and password input fields, and a Sign In button at the bottom. | Email, Password | Sign In → Home Dashboard | User credentials |
+
+---
+
+## Home Dashboard
+
+> **[PASTE IMAGE HERE: Figure 5. Mobile Home Dashboard Screen]**
+> Replace this block with: `![Figure 5. Mobile Home Dashboard Screen](path/to/home-mobile.png)`
+
+
+| Screen | Layout Notes | Inputs | Actions → Destination | Data Shown |
+|--------|--------------|--------|-----------------------|------------|
+| Home Dashboard | Displays the app header, New Report and History buttons, and a Recent Reports section showing previously submitted reports. | None | New Report → SubmitReport<br>History → Report History<br>Tap Recent Report → Report Details | User information, Recent Reports |
+
+---
+
+## Submit Report
+
+> **[PASTE IMAGE HERE: Figure 7. Mobile Submit Report Screen]**
+> Replace this block with: `![Figure 7. Mobile Submit Report Screen](path/to/submit-report-mobile.png)`
+
+
+
+| Screen | Layout Notes | Inputs | Actions → Destination | Data Shown |
+|--------|--------------|--------|-----------------------|------------|
+| Submit Report | Contains buttons to Upload Photo and Select Location, a text area for the report description, and a Submit button. | Photo upload, GPS location, Report description | Upload Photo → Opens device gallery/camera<br>Select Location → Opens location picker or GPS<br>Submit → Report Details | Report information (photo, location, description) |
+
+---
+
+## Report History
+
+> **[PASTE IMAGE HERE: Figure 9. Mobile Report History Screen]**
+> Replace this block with: `![Figure 9. Mobile Report History Screen](path/to/report-history-mobile.png)`
+
+
+
+| Screen | Layout Notes | Inputs | Actions → Destination | Data Shown |
+|--------|--------------|--------|-----------------------|------------|
+| Report History | Displays a list of all reports previously submitted by the user along with their current status (e.g., Pending, Resolved). | None | Tap Report → Report Details<br>Back → Home Dashboard | List of Reports, Report Status |
+
+---
+
+## Report Details
+
+> **[PASTE IMAGE HERE: Figure 11. Mobile Report Details Screen]**
+> Replace this block with: `![Figure 11. Mobile Report Details Screen](path/to/report-details-mobile.png)`
+
+
+
+| Screen | Layout Notes | Inputs | Actions → Destination | Data Shown |
+|--------|--------------|--------|-----------------------|------------|
+| Report Details | Displays the selected report, including the uploaded photo and description of the incident. | None | Back → Home Dashboard or Report History | Report Photo, Description, Location, Date Submitted, Report Status |
+
+
+
