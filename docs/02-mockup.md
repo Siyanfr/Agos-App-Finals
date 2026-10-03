@@ -1,8 +1,10 @@
 # Mockup and wireframes
 
 ## Mockup
+
 ### 1. Login Screen
-<img width="390" height="882" alt="Login" src="https://github.com/user-attachments/assets/9f4b7739-00c9-4472-9492-77b2bf571d2e" />
+
+<img src="assets/Login_Mockup.png" alt="Login" width="390" />
 
 **What the user does here:** Selects or enters their seeded account credentials (for Citizen 1, Citizen 2, or Authority 1) and authenticates into the application.
 
@@ -16,8 +18,7 @@
 
 ### 2. Citizen Home Dashboard & History Screen (with Modal Report Details)
 
-<img width="406" height="923" alt="Home Dashboard" src="https://github.com/user-attachments/assets/525d0788-46f4-460f-9b4c-565a2db10840" />
-<img width="406" height="923" alt="Report Details Overlay" src="https://github.com/user-attachments/assets/96e33ab8-3b05-4733-a83f-8909967a9209" />
+<img src="assets/Home%20Dashboard_Mockup.png" alt="Home Dashboard" width="406" /> <img src="assets/Report%20Details%20Overlay_Mockup.png" alt="Report Details Overlay" width="406" />
 
 **What the user does here:** Views their overall report metrics, browses their submitted parking violation reports, opens detailed report evidence via a centered modal dialog, or initiates a new report submission.
 
@@ -30,7 +31,8 @@
 ---
 
 ### 3. Submit Report
-<img width="406" height="1005" alt="Submit Report" src="https://github.com/user-attachments/assets/66d67679-0608-4524-ac25-e9b127b04e29" />
+
+<img src="assets/Submit%20Report_Mockup.png" alt="Submit Report" width="406" />
 
 **What the user does here:** Captures or uploads photo evidence of an illegally parked vehicle, auto-detects or manually types the location, adds a violation description, and submits the incident.
 
@@ -46,7 +48,7 @@
 
 ### 4. Authority Review Dashboard
 
-<img width="406" height="1056" alt="Authority Review Dashboard" src="https://github.com/user-attachments/assets/9398a7e8-5393-4979-9b1b-460c145ca9a2" />
+<img src="assets/Authority%20Review%20Dashboard_Mockup.png" alt="Authority Review Dashboard" width="406" />
 
 **What the user does here:** Local enforcement officers monitor all incoming city-wide parking reports in real time, view jurisdiction metrics, and filter reports by resolution status.
 
@@ -60,7 +62,7 @@
 
 ### 5. Authority Report Action & Resolution Screen
 
- <img width="422" height="1167" alt="Report Action   Resolution - Authority View" src="https://github.com/user-attachments/assets/9b393df1-cb25-4b56-a711-cc3d5fa8382e" />
+<img src="assets/Report%20Action%20%26%20Resolution_Mockup.png" alt="Report Action and Resolution, Authority View" width="422" />
 
 **What the user does here:** Enforcement officers inspect full-resolution photo evidence, review exact GPS map coordinates, write official resolution notes, and update the report status.
 
@@ -73,26 +75,11 @@
 
 ---
 
-## Screen Prototype 
-
-### Citizen Screens
-
-<img width="1130" height="614" alt="image" src="https://github.com/user-attachments/assets/3a53bd41-a916-4779-a207-98c7dd552b92" />
-
-
-### Authority Screens
-
-<img width="729" height="600" alt="image" src="https://github.com/user-attachments/assets/92918c8b-a895-405a-b6c7-fd2c6dc45c9b" />
-
----
-
 ## Wireframes
 
-## 1. Login
+### 1. Login
 
-> **[PASTE IMAGE HERE: Figure 3. Mobile Login Screen]**
-> Replace this block with: `![Figure 3. Mobile Login Screen](path/to/login-mobile.png)`
-
+<img src="assets/Login_Wireframe.png" alt="Login Wireframe" width="390" />
 
 | Screen | Layout Notes | Inputs | Actions → Destination | Data Shown |
 |--------|--------------|--------|-----------------------|------------|
@@ -100,11 +87,9 @@
 
 ---
 
-## Home Dashboard
+### 2. Home Dashboard
 
-> **[PASTE IMAGE HERE: Figure 5. Mobile Home Dashboard Screen]**
-> Replace this block with: `![Figure 5. Mobile Home Dashboard Screen](path/to/home-mobile.png)`
-
+<img src="assets/Home%20Dashboard_Wireframe.png" alt="Home Dashboard Wireframe" width="390" />
 
 | Screen | Layout Notes | Inputs | Actions → Destination | Data Shown |
 |--------|--------------|--------|-----------------------|------------|
@@ -112,12 +97,9 @@
 
 ---
 
-## Submit Report
+### 3. Submit Report
 
-> **[PASTE IMAGE HERE: Figure 7. Mobile Submit Report Screen]**
-> Replace this block with: `![Figure 7. Mobile Submit Report Screen](path/to/submit-report-mobile.png)`
-
-
+<img src="assets/Submit%20Report_Wireframe.png" alt="Submit Report Wireframe" width="390" />
 
 | Screen | Layout Notes | Inputs | Actions → Destination | Data Shown |
 |--------|--------------|--------|-----------------------|------------|
@@ -125,12 +107,9 @@
 
 ---
 
-## Report History
+### 4. Report History
 
-> **[PASTE IMAGE HERE: Figure 9. Mobile Report History Screen]**
-> Replace this block with: `![Figure 9. Mobile Report History Screen](path/to/report-history-mobile.png)`
-
-
+<img src="assets/Report%20History_Wireframe.png" alt="Report History Wireframe" width="390" />
 
 | Screen | Layout Notes | Inputs | Actions → Destination | Data Shown |
 |--------|--------------|--------|-----------------------|------------|
@@ -138,16 +117,10 @@
 
 ---
 
-## Report Details
+### 5. Report Details
 
-> **[PASTE IMAGE HERE: Figure 11. Mobile Report Details Screen]**
-> Replace this block with: `![Figure 11. Mobile Report Details Screen](path/to/report-details-mobile.png)`
-
-
+<img src="assets/Report%20Details_Wireframe.png" alt="Report Details Wireframe" width="390" />
 
 | Screen | Layout Notes | Inputs | Actions → Destination | Data Shown |
 |--------|--------------|--------|-----------------------|------------|
 | Report Details | Displays the selected report, including the uploaded photo and description of the incident. | None | Back → Home Dashboard or Report History | Report Photo, Description, Location, Date Submitted, Report Status |
-
-
-
