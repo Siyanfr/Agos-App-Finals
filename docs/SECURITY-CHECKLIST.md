@@ -8,18 +8,20 @@
 | 2 | Anything private is in a gitignored config or passed with `--dart-define`, with an example file committed | Yes | `.env` holds the two Cloudinary values and is listed in `.gitignore`. `.env.example` is committed with placeholder values in the same two variable names. |
 | 3 | No keystore, `key.properties` or signing credential is in the repository | N/A | The app has only been run in debug mode (Android emulator, Chrome). No signed release APK has been built yet, so no keystore exists. Re-check this row if/when a signed build is produced. |
 | 4 | Git history is clean: I searched `git log -p` for password, secret, api key and token | Yes | Ran the search. Every real match was a Firebase `apiKey` value inside `lib/firebase_options.dart` (across two commits, from re-running `flutterfire configure`). No password, Supabase `service_role` key, or other genuine secret was found; the remaining matches were comments and `.env.example` template text. |
-| 5 | Any credential that was ever committed has been rotated | N/A | Firebase client API keys are not secrets by Firebase's own design — they identify the project, not grant access — so no rotation is needed. Access is controlled by the Firestore security rules above, and optionally by restricting the key in the Google Cloud console (see row 16). |
+| 5 | Any credential that was ever committed has been rotated | N/A | Firebase client API keys are not secrets by Firebase's own design — they identify the project, not grant access — so no rotation is needed. Access is controlled by the Firestore security rules below, and optionally by restricting the key in the Google Cloud console (see row 16). |
 
 ## GitHub Actions
 
+This repository does have a workflow: `.github/workflows/deploy-web.yml`, which builds the Flutter web app and deploys it to GitHub Pages on every push to `main`.
+
 | # | Check | Yes / No / N/A | Evidence |
 | --- | --- | --- | --- |
-| 6 | No secret value is written literally in any workflow YAML file | N/A | No GitHub Actions workflows exist in this repository. |
-| 7 | Secrets are stored in repository Actions secrets and read with `${{ secrets.NAME }}` | N/A | Same as above. |
-| 8 | No workflow step echoes, dumps or debug-prints a secret, and I opened a recent run's log to confirm | N/A | Same as above. |
+| 6 | No secret value is written literally in any workflow YAML file | Yes | The workflow reads `${{ secrets.CLOUDINARY_CLOUD_NAME }}` and `${{ secrets.CLOUDINARY_UPLOAD_PRESET }}`; no value is hardcoded in the file. |
+| 7 | Secrets are stored in repository Actions secrets and read with `${{ secrets.NAME }}` | Yes | Both `CLOUDINARY_CLOUD_NAME` and `CLOUDINARY_UPLOAD_PRESET` are set under Settings → Secrets and variables → Actions, and referenced that way in the "Create .env from repository secrets" step. |
+| 8 | No workflow step echoes, dumps or debug-prints a secret, and I opened a recent run's log to confirm | Yes | The `.env`-creation step writes the values to a file with `printf`; it never echoes them to the log. Confirmed by reading a full run's log, the values never appear in it. |
 | 9 | If I build a signed APK: the keystore is a base64 secret decoded to a file at build time, never printed | N/A | No signed APK has been built. |
-| 10 | Uploaded build artifacts contain no key file, keystore or generated config | N/A | No CI artifacts are produced. |
-| 11 | Third-party actions are pinned to a commit SHA, not a moveable tag | N/A | No workflows exist. |
+| 10 | Uploaded build artifacts contain no key file, keystore or generated config | No | The deploy step uses `include-hidden-files: true` on `actions/upload-pages-artifact`, so the generated `.env` file is bundled into the published site and is downloadable from it. The two values in it (Cloudinary cloud name and an unsigned upload preset name) are not secrets by design, the same reasoning as row 20, but the honest answer here is that a generated config file *is* included in the artifact. |
+| 11 | Third-party actions are pinned to a commit SHA, not a moveable tag | No | The workflow uses version tags throughout (`actions/checkout@v7`, `subosito/flutter-action@v2`, `actions/cache@v5`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`), not commit SHAs. Not yet addressed; a real gap against this check. |
 | 12 | Secret scanning and push protection are enabled on the repository | Yes | Enabled under Settings → Security and quality → Advanced Security → Secret Protection. |
 
 ## Backend and security rules
@@ -44,20 +46,20 @@
 
 | # | Check | Yes / No / N/A | Evidence |
 | --- | --- | --- | --- |
-| 21 | No student number, personal email, phone number or home address in the repository or in commit messages | Yes | Removed the real name and section header ("Carosus, Cean A.," "CS-302") from the proposal, mockup, and design system files in `docs/` before making the repo public. |
+| 21 | No student number, personal email, phone number or home address in the repository or in commit messages | Yes | No student number, personal email, phone number, or home address is included in the repository or commit messages. |
 | 22 | No classmate's personal data in the repository | Yes | The project only involves Cean's own accounts and invented test data; no other student's information appears anywhere in the app or its documentation. |
 | 23 | Dependencies come from pub.dev, and `build/` and `.dart_tool/` are gitignored | Yes | All packages come from pub.dev via `pubspec.yaml`. `.gitignore` lists both `build/` and `.dart_tool/`, and `git ls-files | findstr` for either returned no output, confirming neither is actually tracked. |
-| 24 | Images, fonts and other assets are mine, licensed, or credited | Yes | The app uses only Flutter's built-in Material Icons; no custom images or third-party fonts have been added. |
+| 24 | Images, fonts and other assets are mine, licensed, or credited | Yes | The app uses Flutter's built-in Material Icons plus one custom asset, the AGOS logo (`assets/agos_logo.png`). No third-party fonts or images have been added. |
 | 25 | Repository visibility is deliberate, and I checked it after my last push | Yes | Confirmed repository is Public on GitHub, checked after the most recent push, matching intent for course submission. |
 
 ## Anything I found and fixed
 
 | # | Finding | Fix / Status |
 | --- | --- | --- |
-| 1 | Proposal, mockup, and design system documents in `docs/` had my real name and section printed on every page | Removed the name/section headers before making the repo public |
-| 2 | Signed-out access had not been explicitly tested, only assumed correct from the rules | Logged out and confirmed no screen displays report data without an authenticated session |
-| 3 | `build/` and `.dart_tool/` being properly gitignored had not been verified | Confirmed both are listed in `.gitignore` and `git ls-files` returns nothing for either |
-| 4 | Secret scanning and push protection had not been enabled on the repo | Enabled under Settings → Security and quality → Advanced Security → Secret Protection |
-| 5 | Repository visibility had not been explicitly re-checked after the latest push | Confirmed Public and checked after the most recent push |
-| 6 | Git log secret scan had not been run | Ran it; only real matches were two Firebase `apiKey` values, which are not secrets by Firebase's own design (they identify the project, not grant access), so no rotation was needed |
-| 7 | Firebase API key is not restricted in the Google Cloud console | Left as a deliberate choice, not a gap, since access is already enforced by Firestore security rules (rows 13–14); an acceptable tradeoff for a class project |
+| 1 | Signed-out access had not been explicitly tested, only assumed correct from the rules | Logged out and confirmed no screen displays report data without an authenticated session |
+| 2 | `build/` and `.dart_tool/` being properly gitignored had not been verified | Confirmed both are listed in `.gitignore` and `git ls-files` returns nothing for either |
+| 3 | Secret scanning and push protection had not been enabled on the repo | Enabled under Settings → Security and quality → Advanced Security → Secret Protection |
+| 4 | Repository visibility had not been explicitly re-checked after the latest push | Confirmed Public and checked after the most recent push |
+| 5 | Git log secret scan had not been run | Ran it; only real matches were two Firebase `apiKey` values, which are not secrets by Firebase's own design (they identify the project, not grant access), so no rotation was needed |
+| 6 | Firebase API key is not restricted in the Google Cloud console | Left as a deliberate choice, not a gap, since access is already enforced by Firestore security rules (rows 13–14); an acceptable tradeoff for a class project |
+| 7 | Rows 6–11 incorrectly assumed no GitHub Actions workflow existed | Corrected against the actual `deploy-web.yml`; this surfaced two real, not-yet-addressed gaps: the published site bundles `.env` (row 10), and third-party actions are pinned to version tags rather than commit SHAs (row 11) |
